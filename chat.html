@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ team_name }} Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/base.css">
+  <link rel="stylesheet" href="/static/css/navbar.css">
+  <link rel="stylesheet" href="/static/css/chat.css">
+</head>
+
+<body>
+
+  {% include '_navbar.html' %}
+
+  <div class="message-feed" id="message-feed">
+    <div class="empty-state">
+      <div class="empty-logo">{{ logo_text }}</div>
+      <div class="empty-title">{{ team_name }} Assistant</div>
+      <div class="empty-team">{{ tagline }}</div>
+      <p class="empty-sub">{{ welcome_message }}</p>
+      <div class="suggestion-chips">
+        {% for suggestion in suggestions %}
+        <div class="chip">{{ suggestion }}</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="input-area-outer">
+    <div class="input-area">
+      <div class="input-row">
+        <textarea class="input-box" id="input-box" placeholder="{{ input_placeholder }}" rows="1"></textarea>
+        <button class="send-btn" id="send-btn" disabled>
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+        </button>
+      </div>
+      <div class="input-hint">
+        <kbd>Enter</kbd> to send &nbsp;·&nbsp; <kbd>Shift</kbd>+<kbd>Enter</kbd> for new line
+      </div>
+    </div>
+  </div>
+
+  <!-- Inject template variables needed by chat.js -->
+  <script>
+    window.CHAT_CONFIG = { logoText: {{ logo_text | tojson }} };
+  </script>
+  <script src="/static/js/chat.js"></script>
+
+</body>
+
+</html>

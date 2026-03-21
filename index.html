@@ -2,165 +2,306 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Devfile YAML ↔ JSON Converter</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 24px;
-        }
-
-        textarea {
-            width: 100%;
-            min-height: 140px;
-            font-family: monospace;
-            font-size: 14px;
-            margin-bottom: 8px;
-        }
-
-        label {
-            font-weight: bold;
-            margin-top: 16px;
-            display: block;
-        }
-
-        #output,
-        #yaml-output {
-            background: #f5f5f5;
-        }
-
-        .error {
-            color: red;
-            font-weight: bold;
-        }
-
-        .success {
-            color: green;
-            font-weight: bold;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Devfile Configurator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/base.css">
+  <link rel="stylesheet" href="/static/css/navbar.css">
+  <link rel="stylesheet" href="/static/css/devfile.css">
 </head>
 
 <body>
-    <h2>Devfile YAML ↔ JSON Converter & Validator</h2>
 
-    <label for="yaml-input">Input Devfile YAML</label>
-    <textarea id="yaml-input" placeholder="Paste Devfile YAML here..."></textarea>
+  {% include '_navbar.html' %}
 
-    <button id="parse-btn">Parse (YAML → JSON)</button>
-    <span id="error-msg" class="error"></span>
+  <div class="main">
+    <!-- Sidebar -->
+    <nav>
+      <div class="nav-section-label">Configure</div>
+      <div class="nav-item active" data-section="repositories">
+        <span class="nav-icon">📦</span> Repositories
+        <span class="nav-badge" id="repo-badge">0</span>
+      </div>
+      <div class="nav-item" data-section="resources">
+        <span class="nav-icon">⚙️</span> Resources
+      </div>
+      <div class="nav-item" data-section="components">
+        <span class="nav-icon">🧩</span> Components
+        <span class="nav-badge" id="comp-badge">0</span>
+      </div>
+      <div class="nav-divider"></div>
+      <div class="nav-section-label">Output</div>
+      <div class="nav-item" data-section="output">
+        <span class="nav-icon">📄</span> Export YAML
+      </div>
+      <div class="nav-divider"></div>
+      <div class="nav-section-label">Import</div>
+      <div class="nav-item" data-section="import">
+        <span class="nav-icon">⬆</span> Import &amp; Validate
+      </div>
+    </nav>
 
-    <label for="json-output">Parsed JSON (Validated as Devfile)</label>
-    <textarea id="json-output" readonly></textarea>
+    <!-- Content -->
+    <div class="content">
 
-    <button id="serialize-btn">Serialize (JSON → YAML)</button>
-    <span id="yaml-msg"></span>
+      <!-- ════ REPOSITORIES ════ -->
+      <div class="section active" id="section-repositories">
+        <div class="section-header">
+          <h2>// repositories</h2>
+          <p>Define the project sources used in this devworkspace. Each repository maps to a project cloned into the
+            workspace at startup.</p>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Projects</span>
+            <button class="btn btn-secondary btn-sm" id="add-repo-btn">+ Add Repository</button>
+          </div>
+          <div class="repo-list" id="repo-list"></div>
+          <div id="repo-empty" style="color:var(--text-faint);font-size:13px;text-align:center;padding:24px 0;">
+            No repositories added yet. Click <strong style="color:var(--text-dim)">+ Add Repository</strong> to begin.
+          </div>
+        </div>
+        <div class="card mt-16">
+          <div class="card-header">
+            <span class="card-title">Starter Projects</span>
+            <button class="btn btn-secondary btn-sm" id="add-starter-btn">+ Add Starter</button>
+          </div>
+          <div class="repo-list" id="starter-list"></div>
+          <div id="starter-empty" style="color:var(--text-faint);font-size:13px;text-align:center;padding:24px 0;">
+            Starter projects are templates users can bootstrap from. Optional.
+          </div>
+        </div>
+      </div>
 
-    <label for="yaml-output">Serialized Devfile YAML</label>
-    <textarea id="yaml-output" readonly></textarea>
+      <!-- ════ RESOURCES ════ -->
+      <div class="section" id="section-resources">
+        <div class="section-header">
+          <h2>// resources</h2>
+          <p>Set CPU and memory limits and requests for the main container component.</p>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Container Image</span></div>
+          <div class="field-group">
+            <label class="field-label">Base Image</label>
+            <input type="text" id="container-image" placeholder="e.g. quay.io/devfile/universal-developer-image:latest">
+          </div>
+          <div class="field-row cols-2 mt-16">
+            <div class="field-group">
+              <label class="field-label">Component Name</label>
+              <input type="text" id="container-name" value="dev" placeholder="dev">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Source Mapping</label>
+              <input type="text" id="source-mapping" value="/projects" placeholder="/projects">
+            </div>
+          </div>
+          <div class="separator"></div>
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-label">Mount Sources</div>
+              <div class="toggle-desc">Mount project source code into the container</div>
+            </div>
+            <div class="toggle on" id="mount-sources-toggle" data-state="true"></div>
+          </div>
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-label">Dedicated Pod</div>
+              <div class="toggle-desc">Run this container in its own separate pod</div>
+            </div>
+            <div class="toggle" id="dedicated-pod-toggle" data-state="false"></div>
+          </div>
+        </div>
+        <div class="card mt-16">
+          <div class="card-header"><span class="card-title">CPU Limits</span></div>
+          <div class="resource-grid">
+            <div class="resource-block">
+              <div class="resource-label-row"><label class="field-label" style="margin:0">CPU Request</label><span
+                  class="resource-val" id="cpu-request-val">500m</span></div>
+              <input type="range" id="cpu-request-slider" min="0" max="20" value="5" step="1">
+              <div class="resource-ticks"><span>0</span><span>500m</span><span>1</span><span>2</span><span>4+</span>
+              </div>
+            </div>
+            <div class="resource-block">
+              <div class="resource-label-row"><label class="field-label" style="margin:0">CPU Limit</label><span
+                  class="resource-val" id="cpu-limit-val">2</span></div>
+              <input type="range" id="cpu-limit-slider" min="0" max="20" value="12" step="1">
+              <div class="resource-ticks"><span>0</span><span>500m</span><span>1</span><span>2</span><span>4+</span>
+              </div>
+            </div>
+          </div>
+          <p class="field-hint mt-8">Or override manually:</p>
+          <div class="field-row cols-2 mt-8">
+            <div class="field-group"><input type="text" id="cpu-request-text" value="500m" placeholder="e.g. 500m or 1">
+            </div>
+            <div class="field-group"><input type="text" id="cpu-limit-text" value="2" placeholder="e.g. 2 or 4000m">
+            </div>
+          </div>
+        </div>
+        <div class="card mt-16">
+          <div class="card-header"><span class="card-title">Memory Limits</span></div>
+          <div class="resource-grid">
+            <div class="resource-block">
+              <div class="resource-label-row"><label class="field-label" style="margin:0">Memory Request</label><span
+                  class="resource-val" id="mem-request-val">512Mi</span></div>
+              <input type="range" id="mem-request-slider" min="0" max="20" value="4" step="1">
+              <div class="resource-ticks">
+                <span>128Mi</span><span>512Mi</span><span>1Gi</span><span>4Gi</span><span>16Gi+</span></div>
+            </div>
+            <div class="resource-block">
+              <div class="resource-label-row"><label class="field-label" style="margin:0">Memory Limit</label><span
+                  class="resource-val" id="mem-limit-val">4Gi</span></div>
+              <input type="range" id="mem-limit-slider" min="0" max="20" value="12" step="1">
+              <div class="resource-ticks">
+                <span>128Mi</span><span>512Mi</span><span>1Gi</span><span>4Gi</span><span>16Gi+</span></div>
+            </div>
+          </div>
+          <p class="field-hint mt-8">Or override manually:</p>
+          <div class="field-row cols-2 mt-8">
+            <div class="field-group"><input type="text" id="mem-request-text" value="512Mi"
+                placeholder="e.g. 512Mi or 1Gi"></div>
+            <div class="field-group"><input type="text" id="mem-limit-text" value="4Gi"
+                placeholder="e.g. 4Gi or 8192Mi"></div>
+          </div>
+        </div>
+        <div class="card mt-16">
+          <div class="card-header">
+            <span class="card-title">Endpoints</span>
+            <button class="btn btn-secondary btn-sm" id="add-endpoint-btn">+ Add Endpoint</button>
+          </div>
+          <div id="endpoint-list"></div>
+          <div id="endpoint-empty" style="color:var(--text-faint);font-size:13px;text-align:center;padding:16px 0;">No
+            endpoints defined. Expose ports from the container here.</div>
+        </div>
+      </div>
 
-    <!-- js-yaml CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
-    <!-- Deep equality check CDN (like lodash) -->
-    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
-    <!-- Devfile JS Class bundle (ensure valid path!) -->
-    <script type="module">
-        import { Devfile } from './devfile.js'; // Adjust the path according to your setup
+      <!-- ════ COMPONENTS ════ -->
+      <div class="section" id="section-components">
+        <div class="section-header">
+          <h2>// components</h2>
+          <p>Add pre-built component bundles to your devfile. Each bundle can inject environment variables, volume
+            mounts, commands, and more.</p>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Component Library</span></div>
+          <div class="component-catalog" id="component-catalog"></div>
+        </div>
+        <div class="card mt-16">
+          <div class="card-header"><span class="card-title">Active Components</span></div>
+          <div class="active-components" id="active-components"></div>
+          <div id="active-components-empty"
+            style="color:var(--text-faint);font-size:13px;text-align:center;padding:24px 0;">Select components from the
+            library above to configure them.</div>
+        </div>
+        <div class="card mt-16">
+          <div class="card-header">
+            <span class="card-title">Custom Environment Variables</span>
+            <button class="btn btn-secondary btn-sm" id="add-env-btn">+ Add Variable</button>
+          </div>
+          <div class="env-list" id="custom-env-list"></div>
+          <div id="custom-env-empty" style="color:var(--text-faint);font-size:13px;text-align:center;padding:16px 0;">No
+            custom environment variables.</div>
+        </div>
+        <div class="card mt-16">
+          <div class="card-header">
+            <span class="card-title">Volume Mounts</span>
+            <button class="btn btn-secondary btn-sm" id="add-vol-btn">+ Add Volume</button>
+          </div>
+          <div id="volume-list"></div>
+          <div id="volume-empty" style="color:var(--text-faint);font-size:13px;text-align:center;padding:16px 0;">No
+            volume mounts defined.</div>
+        </div>
+      </div>
 
-        // Get UI elements
-        const yamlInput = document.getElementById('yaml-input');
-        const parseBtn = document.getElementById('parse-btn');
-        const jsonOutput = document.getElementById('json-output');
-        const serializeBtn = document.getElementById('serialize-btn');
-        const yamlOutput = document.getElementById('yaml-output');
-        const errorMsg = document.getElementById('error-msg');
-        const yamlMsg = document.getElementById('yaml-msg');
+      <!-- ════ OUTPUT ════ -->
+      <div class="section" id="section-output">
+        <div class="section-header">
+          <h2>// export</h2>
+          <p>Review and export the generated devfile. Switch between YAML and JSON views.</p>
+        </div>
+        <div id="output-status" class="status-bar info">ℹ Click <strong>Generate &amp; Export</strong> to build your
+          devfile from the current configuration.</div>
+        <div class="card mb-16" id="share-panel" style="display:none">
+          <div class="card-header" style="margin-bottom:10px">
+            <span class="card-title">🔗 Share Link</span>
+            <span class="tag green" id="share-size-tag"></span>
+          </div>
+          <p style="font-size:12px;color:var(--text-dim);margin-bottom:10px;line-height:1.6">
+            This URL encodes your entire configuration as a compressed hash. Anyone opening it will have the full
+            configuration loaded automatically.
+            The <code style="font-family:var(--mono);font-size:11px;color:var(--accent)">/raw</code> URL is served by
+            the backend with <code
+              style="font-family:var(--mono);font-size:11px;color:var(--accent)">Content-Type: text/yaml</code> — point
+            your devworkspace operator directly at it.
+          </p>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+            <input type="text" id="share-url" readonly
+              style="flex:1;font-size:11px;color:var(--accent);background:var(--surface2)">
+            <button class="btn btn-secondary btn-sm" id="copy-share-btn">⎘ Copy</button>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="text" id="raw-url" readonly
+              style="flex:1;font-size:11px;color:var(--accent3);background:var(--surface2)">
+            <button class="btn btn-ghost btn-sm" id="copy-raw-btn">⎘ Copy Raw</button>
+          </div>
+          <p class="field-hint mt-8">Raw URL is served by the backend with <code
+              style="font-size:10px;font-family:var(--mono)">Content-Type: text/yaml</code>. Fetchable by any HTTP
+            client.</p>
+        </div>
+        <div class="flex-between mb-16">
+          <div class="output-tabs">
+            <div class="output-tab active" data-tab="yaml">YAML</div>
+            <div class="output-tab" data-tab="json">JSON</div>
+          </div>
+          <div class="flex-gap">
+            <button class="btn btn-secondary btn-sm" id="output-generate-btn">↻ Regenerate</button>
+            <button class="btn btn-ghost btn-sm" id="copy-btn">⎘ Copy</button>
+            <button class="btn btn-success btn-sm" id="download-btn">⬇ Download</button>
+          </div>
+        </div>
+        <div class="output-pane active" id="pane-yaml">
+          <div class="code-block" id="yaml-output"># Click "Regenerate" to generate your devfile YAML</div>
+        </div>
+        <div class="output-pane" id="pane-json">
+          <div class="code-block" id="json-output">// JSON output will appear here</div>
+        </div>
+      </div>
 
-        let parsedDevfile = null;  // Holds the Devfile instance
+      <!-- ════ IMPORT ════ -->
+      <div class="section" id="section-import">
+        <div class="section-header">
+          <h2>// import &amp; validate</h2>
+          <p>Paste an existing devfile YAML to parse, validate it against the schema, and load it into the configurator.
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Paste Devfile YAML</span></div>
+          <textarea id="import-yaml-input" placeholder="Paste your devfile YAML here..."
+            style="min-height:220px;"></textarea>
+          <div class="flex-gap mt-16">
+            <button class="btn btn-primary" id="do-import-btn">Parse &amp; Validate</button>
+            <button class="btn btn-ghost" id="clear-import-btn">Clear</button>
+          </div>
+          <div id="import-status" class="mt-16" style="display:none"></div>
+        </div>
+        <div class="card mt-16" id="import-result-card" style="display:none">
+          <div class="card-header"><span class="card-title">Parsed Structure</span></div>
+          <div class="code-block" id="import-json-output" style="max-height:300px;"></div>
+        </div>
+      </div>
 
-        function omitUntruthy(obj) {
-            if (Array.isArray(obj)) {
-                return obj
-                    .map(omitUntruthy)
-                    .filter(val => val !== undefined && val !== null && !(typeof val === 'object' && Object.keys(val).length === 0));
-            } else if (obj && typeof obj === 'object') {
-                const cleaned = {};
-                for (const [key, val] of Object.entries(obj)) {
-                    if (
-                        val !== undefined &&
-                        val !== null &&
-                        val !== false &&
-                        val !== '' &&
-                        !(Array.isArray(val) && val.length === 0) &&
-                        !(typeof val === 'object' && !Array.isArray(val) && Object.keys(val).length === 0)
-                    ) {
-                        cleaned[key] = omitUntruthy(val);
-                    }
-                }
-                return cleaned;
-            } else {
-                return obj;
-            }
-        }
+    </div><!-- /content -->
+  </div><!-- /main -->
 
-        // Parse YAML → Devfile → JSON
-        parseBtn.addEventListener('click', () => {
-            errorMsg.textContent = '';
-            jsonOutput.value = '';
-            yamlMsg.textContent = '';
-            yamlOutput.value = '';
-            parsedDevfile = null; // Reset
+  <input type="file" id="file-input" accept=".yaml,.yml" style="display:none">
 
-            try {
-                const data = jsyaml.load(yamlInput.value);
-                parsedDevfile = new Devfile(data); // Validate per class
-                jsonOutput.value = JSON.stringify(parsedDevfile, null, 2);
-            } catch (e) {
-                errorMsg.textContent = 'Error: ' + e.message;
-                parsedDevfile = null;
-            }
-        });
+  <!-- js-yaml must load before devfile.js since it's a module that references jsyaml on window -->
+  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+  <script type="module" src="/static/js/devfile.js"></script>
 
-        // Serialize Devfile → YAML
-        serializeBtn.addEventListener('click', () => {
-            yamlMsg.textContent = '';
-            yamlOutput.value = '';
-            if (!parsedDevfile) {
-                yamlMsg.textContent = '❗ Please parse YAML first.';
-                yamlMsg.className = 'error';
-                return;
-            }
-            try {
-                // Convert the Devfile object back to plain JSON for serialization
-                const plain = JSON.parse(JSON.stringify(parsedDevfile));
-                const yamlSerialized = jsyaml.dump(omitUntruthy(plain), { sortKeys: false, lineWidth: 160 });
-                yamlOutput.value = yamlSerialized;
-
-                // Compare input and output YAML by normalizing and loading as JSON
-                let inputYamlObj, outputYamlObj;
-                try {
-                    inputYamlObj = jsyaml.load(yamlInput.value);
-                    outputYamlObj = jsyaml.load(yamlSerialized);
-                } catch (err) {
-                    yamlMsg.textContent = 'Failed to compare YAML due to parsing error.';
-                    yamlMsg.className = 'error';
-                    return;
-                }
-
-                const isEqual = _.isEqual(inputYamlObj, outputYamlObj);
-                if (isEqual) {
-                    yamlMsg.textContent = '✔ Input YAML and output YAML represent the same data.';
-                    yamlMsg.className = 'success';
-                } else {
-                    yamlMsg.textContent = '❗ Input and output YAML differ. See the boxes for details.';
-                    yamlMsg.className = 'error';
-                }
-            } catch (e) {
-                yamlMsg.textContent = 'Error serializing Devfile: ' + e.message;
-                yamlMsg.className = 'error';
-            }
-        });
-    </script>
 </body>
 
 </html>

@@ -1,0 +1,35 @@
+{#
+  _navbar.html — shared navigation bar
+  ─────────────────────────────────────
+  Expected context variables (all provided by DevfileController):
+    team_name   str   e.g. "Platform"
+    logo_text   str   e.g. "plt"
+    active_page str   "chat" | "devfile"
+
+  Per-page action buttons are passed via the `header_actions` context variable
+  as raw HTML — simpler than Jinja2 block inheritance when using {% include %}.
+#}
+<header>
+  <div class="logo-mark">{{ logo_text }}</div>
+  <div class="header-title">
+    <h1>{{ team_name }}</h1>
+    <span>dev tooling</span>
+  </div>
+
+  <div class="header-divider"></div>
+
+  <nav class="header-nav">
+    <a href="/"
+       class="header-nav-item {% if active_page == 'chat' %}active{% endif %}">
+      💬 Assistant
+    </a>
+    <a href="/devfile"
+       class="header-nav-item {% if active_page == 'devfile' %}active{% endif %}">
+      ⚙️ Devfile Configurator
+    </a>
+  </nav>
+
+  <div class="header-actions">
+    {{ header_actions | safe }}
+  </div>
+</header>

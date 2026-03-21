@@ -1,0 +1,34 @@
+/* base.css — shared design tokens, reset, and scrollbar */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:           #0d0f14;
+  --surface:      #141720;
+  --surface2:     #1c2030;
+  --surface3:     #242840;
+  --border:       #2a2f45;
+  --border-bright:#3d4460;
+  --accent:       #4f9cf9;
+  --accent2:      #7c6cf9;
+  --accent3:      #4fffa0;
+  --warn:         #f97b4f;
+  --text:         #e8eaf0;
+  --text-dim:     #8892a8;
+  --text-faint:   #4a5068;
+  --mono:         'IBM Plex Mono', monospace;
+  --sans:         'IBM Plex Sans', sans-serif;
+  --radius:       6px;
+  --header-h:     65px;
+}
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-bright); }
