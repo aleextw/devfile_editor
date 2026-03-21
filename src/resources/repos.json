@@ -1,0 +1,37 @@
+[
+  {
+    "name": "frontend",
+    "remotes": {
+      "origin": "https://github.com/org/frontend"
+    },
+    "revision": "main",
+    "description": "React frontend application"
+  },
+  {
+    "name": "backend",
+    "remotes": {
+      "origin": "https://github.com/org/backend"
+    },
+    "revision": "main",
+    "description": "Python API server"
+  },
+  {
+    "name": "infra",
+    "remotes": {
+      "origin": "https://github.com/org/infra"
+    },
+    "revision": "main",
+    "clone_path": "infrastructure",
+    "description": "Terraform infrastructure"
+  },
+  {
+    "name": "my-fork",
+    "remotes": {
+      "origin": "https://github.com/me/shared-lib",
+      "upstream": "https://github.com/org/shared-lib"
+    },
+    "revision": "main",
+    "remote": "origin",
+    "description": "Fork with upstream tracking (multi-remote example)"
+  }
+]

@@ -1,0 +1,31 @@
+schemaVersion: "2.3.0"
+metadata:
+  name: Node.js Workspace
+  description: A Node.js development workspace with npm cache volume and debug port
+components:
+  - name: dev
+    container:
+      image: quay.io/devfile/universal-developer-image:latest
+      cpuRequest: "500m"
+      cpuLimit: "2"
+      memoryRequest: "512Mi"
+      memoryLimit: "4Gi"
+      mountSources: true
+      sourceMapping: /projects
+      env:
+        - name: NODE_VERSION
+          value: "20"
+      endpoints:
+        - name: http-dev
+          targetPort: 3000
+          protocol: http
+          exposure: public
+        - name: debug
+          targetPort: 9229
+          protocol: tcp
+          exposure: internal
+      volumeMounts:
+        - name: npm-cache
+          path: /root/.npm
+  - name: npm-cache
+    volume: {}

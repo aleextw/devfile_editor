@@ -1,0 +1,24 @@
+schemaVersion: "2.3.0"
+metadata:
+  name: Python Workspace
+  description: A Python development workspace with virtualenv and common tooling
+components:
+  - name: dev
+    container:
+      image: quay.io/devfile/universal-developer-image:latest
+      cpuRequest: "500m"
+      cpuLimit: "2"
+      memoryRequest: "512Mi"
+      memoryLimit: "4Gi"
+      mountSources: true
+      sourceMapping: /projects
+      env:
+        - name: PYTHON_VERSION
+          value: "3.11"
+        - name: VIRTUAL_ENV
+          value: /projects/.venv
+      endpoints:
+        - name: http-dev
+          targetPort: 8000
+          protocol: http
+          exposure: public

@@ -1,0 +1,32 @@
+schemaVersion: 2.3.0
+components:
+  - name: dev
+    container:
+      image: registry.access.redhat.com/ubi8/nodejs-12:1-45
+      cpuRequest: "10"
+      cpuLimit: "10"
+      memoryRequest: 4Gi
+      memoryLimit: 4Gi
+      mountSources: true
+      sourceMapping: /projects
+projects:
+  - name: frontend
+    git:
+      remotes:
+        origin: https://github.com/org/frontend
+  - name: backend
+    git:
+      remotes:
+        origin: https://github.com/org/backend
+  - name: infra
+    git:
+      remotes:
+        origin: https://github.com/org/infra
+    clonePath: infrastructure
+  - name: my-fork
+    git:
+      remotes:
+        origin: https://github.com/me/shared-lib
+        upstream: https://github.com/org/shared-lib
+      checkoutFrom:
+        remote: origin

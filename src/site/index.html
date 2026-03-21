@@ -1,0 +1,931 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Devfile Configurator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/css/base.css" />
+    <link rel="stylesheet" href="/static/css/navbar.css" />
+    <link rel="stylesheet" href="/static/css/devfile.css" />
+  </head>
+
+  <body>
+    {% include '_navbar.html' %}
+
+    <div class="main">
+      <!-- Sidebar -->
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Configure</div>
+        <div class="nav-item active" data-section="repositories">
+          <span class="nav-icon">📦</span> Repositories
+          <span class="nav-badge" id="repo-badge">0</span>
+        </div>
+        <div class="nav-item" data-section="resources">
+          <span class="nav-icon">⚙️</span> Resources
+        </div>
+        <div class="nav-item" data-section="components">
+          <span class="nav-icon">🧩</span> Components
+          <span class="nav-badge" id="comp-badge">0</span>
+        </div>
+        <div class="nav-item" data-section="commands">
+          <span class="nav-icon">⚡</span> Commands
+          <span class="nav-badge" id="commands-badge">0</span>
+        </div>
+        <div class="nav-item" data-section="events">
+          <span class="nav-icon">🔔</span> Events
+        </div>
+        <div class="nav-divider"></div>
+        <div class="nav-section-label">Output</div>
+        <div class="nav-item" data-section="output">
+          <span class="nav-icon">📄</span> Export YAML
+        </div>
+        <div class="nav-divider"></div>
+        <div class="nav-section-label">Import</div>
+        <div class="nav-item" data-section="import">
+          <span class="nav-icon">⬆</span> Import &amp; Validate
+        </div>
+        {% if predefined_configs %}
+        <div class="nav-divider"></div>
+        <div class="nav-section-label">Templates</div>
+        <div class="nav-item" data-section="templates">
+          <span class="nav-icon">📋</span> Predefined Configs
+          <span class="nav-badge">{{ predefined_configs | length }}</span>
+        </div>
+        {% endif %}
+      </nav>
+
+      <!-- Content -->
+      <div class="content">
+        <!-- ════ REPOSITORIES ════ -->
+        <div class="section active" id="section-repositories">
+          <div class="section-header">
+            <h2>// repositories</h2>
+            <p>
+              Define the project sources used in this devworkspace. Each
+              repository maps to a project cloned into the workspace at startup.
+            </p>
+          </div>
+
+          {% if predefined_repos %}
+          <div class="card" id="predefined-repos-card">
+            <div class="card-header" style="margin-bottom: 12px">
+              <span class="card-title">Predefined Repositories</span>
+              <div class="flex-gap">
+                <button class="btn btn-ghost btn-sm" id="select-all-repos-btn">
+                  Select All
+                </button>
+                <button
+                  class="btn btn-secondary btn-sm"
+                  id="add-selected-repos-btn"
+                >
+                  + Add Selected
+                </button>
+              </div>
+            </div>
+            <p
+              style="
+                font-size: 12px;
+                color: var(--text-dim);
+                margin-bottom: 12px;
+                line-height: 1.6;
+              "
+            >
+              Select one or more repositories from your organisation's catalog,
+              then click <strong>+ Add Selected</strong>
+              to add them to your project list.
+            </p>
+            <div
+              id="predefined-repo-list"
+              style="display: flex; flex-direction: column; gap: 6px"
+            >
+              {% for repo in predefined_repos %}
+              <label
+                class="predefined-repo-row"
+                data-name="{{ repo.name }}"
+                data-revision="{{ repo.revision }}"
+                data-remote="{{ repo.remote }}"
+                data-clone-path="{{ repo.clone_path }}"
+              >
+                <input type="checkbox" class="predefined-repo-check" />
+                <div class="predefined-repo-info">
+                  <span class="predefined-repo-name">{{ repo.name }}</span>
+                  {% if repo.description %}
+                  <span class="predefined-repo-desc"
+                    >{{ repo.description }}</span
+                  >
+                  {% endif %}
+                  <span class="predefined-repo-url"
+                    >{{ repo.remotes.values() | first }}</span
+                  >
+                </div>
+                <span class="predefined-repo-branch tag"
+                  >{{ repo.revision }}</span
+                >
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
+          <div class="card {% if predefined_repos %}mt-16{% endif %}">
+            <div class="card-header">
+              <span class="card-title">Projects</span>
+              <button class="btn btn-secondary btn-sm" id="add-repo-btn">
+                + Add Custom Repository
+              </button>
+            </div>
+            <div class="repo-list" id="repo-list"></div>
+            <div
+              id="repo-empty"
+              style="
+                color: var(--text-faint);
+                font-size: 13px;
+                text-align: center;
+                padding: 24px 0;
+              "
+            >
+              No repositories added yet.{% if predefined_repos %} Select from
+              the catalog above, or click
+              <strong style="color: var(--text-dim)"
+                >+ Add Custom Repository</strong
+              >
+              to enter a URL manually.{% else %} Click
+              <strong style="color: var(--text-dim)"
+                >+ Add Custom Repository</strong
+              >
+              to begin.{% endif %}
+            </div>
+          </div>
+          <div class="card mt-16">
+            <div class="card-header">
+              <span class="card-title">Starter Projects</span>
+              <button class="btn btn-secondary btn-sm" id="add-starter-btn">
+                + Add Starter
+              </button>
+            </div>
+            <div class="repo-list" id="starter-list"></div>
+            <div
+              id="starter-empty"
+              style="
+                color: var(--text-faint);
+                font-size: 13px;
+                text-align: center;
+                padding: 24px 0;
+              "
+            >
+              Starter projects are templates users can bootstrap from. Optional.
+            </div>
+          </div>
+        </div>
+
+        <!-- ════ RESOURCES ════ -->
+        <div class="section" id="section-resources">
+          <div class="section-header">
+            <h2>// resources</h2>
+            <p>
+              Set CPU and memory limits and requests for the main container
+              component.
+            </p>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Container Image</span>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Base Image</label>
+              <input
+                type="text"
+                id="container-image"
+                placeholder="e.g. quay.io/devfile/universal-developer-image:latest"
+              />
+            </div>
+            <div class="field-row cols-2 mt-16">
+              <div class="field-group">
+                <label class="field-label">Component Name</label>
+                <input
+                  type="text"
+                  id="container-name"
+                  value="dev"
+                  placeholder="dev"
+                />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Source Mapping</label>
+                <input
+                  type="text"
+                  id="source-mapping"
+                  value="/projects"
+                  placeholder="/projects"
+                />
+              </div>
+            </div>
+            <div class="separator"></div>
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-label">Mount Sources</div>
+                <div class="toggle-desc">
+                  Mount project source code into the container
+                </div>
+              </div>
+              <div
+                class="toggle on"
+                id="mount-sources-toggle"
+                data-state="true"
+              ></div>
+            </div>
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-label">Dedicated Pod</div>
+                <div class="toggle-desc">
+                  Run this container in its own separate pod
+                </div>
+              </div>
+              <div
+                class="toggle"
+                id="dedicated-pod-toggle"
+                data-state="false"
+              ></div>
+            </div>
+          </div>
+          <div class="card mt-16">
+            <div class="card-header">
+              <span class="card-title">CPU Limits</span>
+            </div>
+            <div class="resource-grid">
+              <div class="resource-block">
+                <div class="resource-label-row">
+                  <label class="field-label" style="margin: 0"
+                    >CPU Request</label
+                  ><span class="resource-val" id="cpu-request-val">500m</span>
+                </div>
+                <input
+                  type="range"
+                  id="cpu-request-slider"
+                  min="0"
+                  max="20"
+                  value="5"
+                  step="1"
+                />
+                <div class="resource-ticks">
+                  <span>0</span><span>500m</span><span>1</span><span>2</span
+                  ><span>4+</span>
+                </div>
+              </div>
+              <div class="resource-block">
+                <div class="resource-label-row">
+                  <label class="field-label" style="margin: 0">CPU Limit</label
+                  ><span class="resource-val" id="cpu-limit-val">2</span>
+                </div>
+                <input
+                  type="range"
+                  id="cpu-limit-slider"
+                  min="0"
+                  max="20"
+                  value="12"
+                  step="1"
+                />
+                <div class="resource-ticks">
+                  <span>0</span><span>500m</span><span>1</span><span>2</span
+                  ><span>4+</span>
+                </div>
+              </div>
+            </div>
+            <p class="field-hint mt-8">Or override manually:</p>
+            <div class="field-row cols-2 mt-8">
+              <div class="field-group">
+                <input
+                  type="text"
+                  id="cpu-request-text"
+                  value="500m"
+                  placeholder="e.g. 500m or 1"
+                />
+              </div>
+              <div class="field-group">
+                <input
+                  type="text"
+                  id="cpu-limit-text"
+                  value="2"
+                  placeholder="e.g. 2 or 4000m"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="card mt-16">
+            <div class="card-header">
+              <span class="card-title">Memory Limits</span>
+            </div>
+            <div class="resource-grid">
+              <div class="resource-block">
+                <div class="resource-label-row">
+                  <label class="field-label" style="margin: 0"
+                    >Memory Request</label
+                  ><span class="resource-val" id="mem-request-val">512Mi</span>
+                </div>
+                <input
+                  type="range"
+                  id="mem-request-slider"
+                  min="0"
+                  max="20"
+                  value="4"
+                  step="1"
+                />
+                <div class="resource-ticks">
+                  <span>128Mi</span><span>512Mi</span><span>1Gi</span
+                  ><span>4Gi</span><span>16Gi+</span>
+                </div>
+              </div>
+              <div class="resource-block">
+                <div class="resource-label-row">
+                  <label class="field-label" style="margin: 0"
+                    >Memory Limit</label
+                  ><span class="resource-val" id="mem-limit-val">4Gi</span>
+                </div>
+                <input
+                  type="range"
+                  id="mem-limit-slider"
+                  min="0"
+                  max="20"
+                  value="12"
+                  step="1"
+                />
+                <div class="resource-ticks">
+                  <span>128Mi</span><span>512Mi</span><span>1Gi</span
+                  ><span>4Gi</span><span>16Gi+</span>
+                </div>
+              </div>
+            </div>
+            <p class="field-hint mt-8">Or override manually:</p>
+            <div class="field-row cols-2 mt-8">
+              <div class="field-group">
+                <input
+                  type="text"
+                  id="mem-request-text"
+                  value="512Mi"
+                  placeholder="e.g. 512Mi or 1Gi"
+                />
+              </div>
+              <div class="field-group">
+                <input
+                  type="text"
+                  id="mem-limit-text"
+                  value="4Gi"
+                  placeholder="e.g. 4Gi or 8192Mi"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="card mt-16">
+            <div class="card-header">
+              <span class="card-title">Endpoints</span>
+              <button class="btn btn-secondary btn-sm" id="add-endpoint-btn">
+                + Add Endpoint
+              </button>
+            </div>
+            <div id="endpoint-list"></div>
+            <div
+              id="endpoint-empty"
+              style="
+                color: var(--text-faint);
+                font-size: 13px;
+                text-align: center;
+                padding: 16px 0;
+              "
+            >
+              No endpoints defined. Expose ports from the container here.
+            </div>
+          </div>
+        </div>
+
+        <!-- ════ COMPONENTS ════ -->
+        <div class="section" id="section-components">
+          <div class="section-header">
+            <h2>// components</h2>
+            <p>
+              Add pre-built component bundles to your devfile. Each bundle can
+              inject environment variables, volume mounts, and endpoints. Set
+              <code style="font-family: var(--mono); font-size: 11px"
+                >DEVFILE_COMPONENT_CATALOG_FILE</code
+              >
+              to load a catalog.
+            </p>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Component Library</span>
+            </div>
+            <div class="component-catalog" id="component-catalog"></div>
+            <div
+              id="catalog-empty"
+              style="
+                color: var(--text-faint);
+                font-size: 13px;
+                text-align: center;
+                padding: 24px 0;
+                display: none;
+              "
+            >
+              No component catalog configured. Set
+              <code style="font-family: var(--mono); font-size: 11px"
+                >DEVFILE_COMPONENT_CATALOG_FILE</code
+              >
+              in your
+              <code style="font-family: var(--mono); font-size: 11px"
+                >.env</code
+              >
+              to load a catalog.
+            </div>
+          </div>
+          <div class="card mt-16">
+            <div class="card-header">
+              <span class="card-title">Active Components</span>
+            </div>
+            <div class="active-components" id="active-components"></div>
+            <div
+              id="active-components-empty"
+              style="
+                color: var(--text-faint);
+                font-size: 13px;
+                text-align: center;
+                padding: 24px 0;
+              "
+            >
+              Select components from the library above to configure them.
+            </div>
+          </div>
+          <div class="card mt-16">
+            <div class="card-header">
+              <span class="card-title">Custom Environment Variables</span>
+              <button class="btn btn-secondary btn-sm" id="add-env-btn">
+                + Add Variable
+              </button>
+            </div>
+            <div class="env-list" id="custom-env-list"></div>
+            <div
+              id="custom-env-empty"
+              style="
+                color: var(--text-faint);
+                font-size: 13px;
+                text-align: center;
+                padding: 16px 0;
+              "
+            >
+              No custom environment variables.
+            </div>
+          </div>
+          <div class="card mt-16">
+            <div class="card-header">
+              <span class="card-title">Volume Mounts</span>
+              <button class="btn btn-secondary btn-sm" id="add-vol-btn">
+                + Add Volume
+              </button>
+            </div>
+            <div id="volume-list"></div>
+            <div
+              id="volume-empty"
+              style="
+                color: var(--text-faint);
+                font-size: 13px;
+                text-align: center;
+                padding: 16px 0;
+              "
+            >
+              No volume mounts defined.
+            </div>
+          </div>
+        </div>
+
+        <!-- ════ COMMANDS ════ -->
+        <div class="section" id="section-commands">
+          <div class="section-header">
+            <h2>// commands</h2>
+            <p>
+              Define devworkspace commands — actions that can be run from the
+              IDE.
+              <code style="font-family: var(--mono); font-size: 11px"
+                >exec</code
+              >
+              runs a shell command in a container,
+              <code style="font-family: var(--mono); font-size: 11px"
+                >composite</code
+              >
+              chains other commands,
+              <code style="font-family: var(--mono); font-size: 11px"
+                >apply</code
+              >
+              applies a component.
+            </p>
+          </div>
+
+          <div class="card" id="predefined-commands-card" style="display: none">
+            <div class="card-header" style="margin-bottom: 12px">
+              <span class="card-title">Predefined Commands</span>
+              <div class="flex-gap">
+                <button
+                  class="btn btn-ghost btn-sm"
+                  id="select-all-commands-btn"
+                >
+                  Select All
+                </button>
+                <button
+                  class="btn btn-secondary btn-sm"
+                  id="add-selected-commands-btn"
+                >
+                  + Add Selected
+                </button>
+              </div>
+            </div>
+            <p
+              style="
+                font-size: 12px;
+                color: var(--text-dim);
+                margin-bottom: 12px;
+                line-height: 1.6;
+              "
+            >
+              Select from your organisation's predefined commands, then click
+              <strong>+ Add Selected</strong>. You can customise any field after
+              adding.
+            </p>
+            <div
+              id="predefined-command-list"
+              style="display: flex; flex-direction: column; gap: 6px"
+            >
+              {% for cmd in predefined_commands %}
+              <label class="predefined-repo-row" data-command-id="{{ cmd.id }}">
+                <input type="checkbox" class="predefined-command-check" />
+                <div class="predefined-repo-info">
+                  <span class="predefined-repo-name"
+                    >{{ cmd.display_name or cmd.id }}</span
+                  >
+                  {% if cmd.description %}
+                  <span class="predefined-repo-desc"
+                    >{{ cmd.description }}</span
+                  >
+                  {% endif %}
+                  <span class="predefined-repo-url">
+                    {% if cmd.exec %}exec · {{ cmd.exec.get('commandLine', '')
+                    }} {% elif cmd.composite %}composite · {{
+                    (cmd.composite.get('commands') or []) | join(', ') }} {%
+                    elif cmd.apply %}apply · {{ cmd.apply.get('component', '')
+                    }} {% endif %}
+                  </span>
+                </div>
+                <span class="tag">
+                  {% if cmd.exec %}{{ cmd.exec.get('group', {}).get('kind',
+                  'exec') }} {% elif cmd.composite %}composite {% elif cmd.apply
+                  %}apply {% endif %}
+                </span>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="card mt-16">
+            <div class="card-header">
+              <span class="card-title">Commands</span>
+              <button class="btn btn-secondary btn-sm" id="add-command-btn">
+                + Add Command
+              </button>
+            </div>
+            <div id="command-list"></div>
+            <div
+              id="command-empty"
+              style="
+                color: var(--text-faint);
+                font-size: 13px;
+                text-align: center;
+                padding: 24px 0;
+              "
+            >
+              No commands defined. Select from the catalog above or click
+              <strong style="color: var(--text-dim)">+ Add Command</strong>.
+            </div>
+          </div>
+        </div>
+
+        <!-- ════ EVENTS ════ -->
+        <div class="section" id="section-events">
+          <div class="section-header">
+            <h2>// events</h2>
+            <p>
+              Bind commands to devworkspace lifecycle events. Commands are
+              referenced by their ID — define them first in the
+              <strong>Commands</strong> section.
+            </p>
+          </div>
+          {% set event_types = [ {"key": "preStart", "label": "preStart",
+          "desc": "Executed as init containers before the workspace starts.
+          Useful for setup tasks like pulling dependencies or initialising
+          secrets."}, {"key": "postStart", "label": "postStart", "desc":
+          "Executed after the workspace and all plugins have fully started.
+          Typical use: clone projects, run initial builds."}, {"key": "preStop",
+          "label": "preStop", "desc": "Executed before the workspace stops.
+          Useful for saving state or graceful shutdown tasks."}, {"key":
+          "postStop", "label": "postStop", "desc": "Executed after the workspace
+          has stopped."} ] %} {% for event in event_types %}
+          <div class="card {% if not loop.first %}mt-16{% endif %}">
+            <div class="card-header" style="margin-bottom: 12px">
+              <span class="card-title"
+                ><code style="font-family: var(--mono); font-size: 12px"
+                  >{{ event.label }}</code
+                ></span
+              >
+            </div>
+            <p
+              style="
+                font-size: 12px;
+                color: var(--text-dim);
+                margin-bottom: 14px;
+                line-height: 1.6;
+              "
+            >
+              {{ event.desc }}
+            </p>
+            <div id="event-{{ event.key }}-commands"></div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- ════ OUTPUT ════ -->
+        <div class="section" id="section-output">
+          <div class="section-header">
+            <h2>// export</h2>
+            <p>
+              Review and export the generated devfile. Switch between YAML and
+              JSON views.
+            </p>
+          </div>
+          <div id="output-status" class="status-bar info">
+            ℹ Click <strong>Generate &amp; Export</strong> to build your devfile
+            from the current configuration.
+          </div>
+          <div class="card mb-16" id="share-panel" style="display: none">
+            <div class="card-header" style="margin-bottom: 10px">
+              <span class="card-title">🔗 Share Link</span>
+              <span class="tag green" id="share-size-tag"></span>
+            </div>
+            <p
+              style="
+                font-size: 12px;
+                color: var(--text-dim);
+                margin-bottom: 10px;
+                line-height: 1.6;
+              "
+            >
+              This URL encodes your entire configuration as a compressed hash.
+              Anyone opening it will have the full configuration loaded
+              automatically. The
+              <code
+                style="
+                  font-family: var(--mono);
+                  font-size: 11px;
+                  color: var(--accent);
+                "
+                >/raw</code
+              >
+              URL is served by the backend with
+              <code
+                style="
+                  font-family: var(--mono);
+                  font-size: 11px;
+                  color: var(--accent);
+                "
+                >Content-Type: text/yaml</code
+              >
+              — point your devworkspace operator directly at it.
+            </p>
+            <div
+              style="
+                display: flex;
+                gap: 8px;
+                align-items: center;
+                margin-bottom: 8px;
+              "
+            >
+              <input
+                type="text"
+                id="share-url"
+                readonly
+                style="
+                  flex: 1;
+                  font-size: 11px;
+                  color: var(--accent);
+                  background: var(--surface2);
+                "
+              />
+              <button class="btn btn-secondary btn-sm" id="copy-share-btn">
+                ⎘ Copy
+              </button>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center">
+              <input
+                type="text"
+                id="raw-url"
+                readonly
+                style="
+                  flex: 1;
+                  font-size: 11px;
+                  color: var(--accent3);
+                  background: var(--surface2);
+                "
+              />
+              <button class="btn btn-ghost btn-sm" id="copy-raw-btn">
+                ⎘ Copy Raw
+              </button>
+            </div>
+            <p class="field-hint mt-8">
+              Raw URL is served by the backend with
+              <code style="font-size: 10px; font-family: var(--mono)"
+                >Content-Type: text/yaml</code
+              >. Fetchable by any HTTP client.
+            </p>
+          </div>
+          <div class="flex-between mb-16">
+            <div class="output-tabs">
+              <div class="output-tab active" data-tab="yaml">YAML</div>
+              <div class="output-tab" data-tab="json">JSON</div>
+            </div>
+            <div class="flex-gap">
+              <button class="btn btn-secondary btn-sm" id="output-generate-btn">
+                ↻ Regenerate
+              </button>
+              <button class="btn btn-ghost btn-sm" id="copy-btn">⎘ Copy</button>
+              <button class="btn btn-success btn-sm" id="download-btn">
+                ⬇ Download
+              </button>
+            </div>
+          </div>
+          <div class="output-pane active" id="pane-yaml">
+            <div class="code-block" id="yaml-output">
+              # Click "Regenerate" to generate your devfile YAML
+            </div>
+          </div>
+          <div class="output-pane" id="pane-json">
+            <div class="code-block" id="json-output">
+              // JSON output will appear here
+            </div>
+          </div>
+        </div>
+
+        <!-- ════ IMPORT ════ -->
+        <div class="section" id="section-import">
+          <div class="section-header">
+            <h2>// import &amp; validate</h2>
+            <p>
+              Paste an existing devfile YAML to parse, validate it against the
+              schema, and load it into the configurator.
+            </p>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Paste Devfile YAML</span>
+            </div>
+            <textarea
+              id="import-yaml-input"
+              placeholder="Paste your devfile YAML here..."
+              style="min-height: 220px"
+            ></textarea>
+            <div class="flex-gap mt-16">
+              <button class="btn btn-primary" id="do-import-btn">
+                Parse &amp; Validate
+              </button>
+              <button class="btn btn-ghost" id="clear-import-btn">Clear</button>
+            </div>
+            <div id="import-status" class="mt-16" style="display: none"></div>
+          </div>
+          <div class="card mt-16" id="import-result-card" style="display: none">
+            <div class="card-header">
+              <span class="card-title">Parsed Structure</span>
+            </div>
+            <div
+              class="code-block"
+              id="import-json-output"
+              style="max-height: 300px"
+            ></div>
+          </div>
+        </div>
+
+        <!-- ════ TEMPLATES ════ -->
+        {% if predefined_configs %}
+        <div class="section" id="section-templates">
+          <div class="section-header">
+            <h2>// predefined configs</h2>
+            <p>
+              Ready-made devfile configurations. Click <strong>Load</strong> on
+              any template to open it in the configurator — your current
+              configuration will be replaced.
+            </p>
+          </div>
+          <div id="template-list">
+            {% for config in predefined_configs %}
+            <div class="template-card card">
+              <div
+                class="template-card-header"
+                data-template-id="{{ loop.index }}"
+              >
+                <div class="template-card-title-group">
+                  <span class="template-card-name">{{ config.name }}</span>
+                  {% if config.description %}
+                  <span class="template-card-desc"
+                    >{{ config.description }}</span
+                  >
+                  {% endif %}
+                </div>
+                <div class="flex-gap">
+                  <a
+                    href="/devfile#c={{ config.blob }}"
+                    class="btn btn-primary btn-sm"
+                    onclick="event.preventDefault(); location.hash = 'c={{ config.blob }}';"
+                  >
+                    Load
+                  </a>
+                  <button
+                    class="btn btn-ghost btn-sm template-expand-btn"
+                    data-target="template-body-{{ loop.index }}"
+                    aria-expanded="false"
+                  >
+                    ▾ Preview
+                  </button>
+                </div>
+              </div>
+              <div
+                class="template-card-body"
+                id="template-body-{{ loop.index }}"
+                hidden
+              >
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    margin-bottom: 8px;
+                  "
+                >
+                  <span class="card-title">YAML Preview</span>
+                  <div class="flex-gap">
+                    <input
+                      type="text"
+                      readonly
+                      value="{{ base_url }}/raw?c={{ config.blob }}"
+                      class="template-raw-url"
+                      style="
+                        width: 320px;
+                        font-size: 11px;
+                        color: var(--accent3);
+                      "
+                    />
+                    <button class="btn btn-ghost btn-sm template-copy-btn">
+                      ⎘ Copy Raw URL
+                    </button>
+                  </div>
+                </div>
+                <div class="code-block" style="max-height: 320px">
+                  {{ config.yaml_preview | e }}
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      <!-- /content -->
+    </div>
+    <!-- /main -->
+
+    <input
+      type="file"
+      id="file-input"
+      accept=".yaml,.yml"
+      style="display: none"
+    />
+
+    <!-- Unregister any previously installed Service Worker (sw.js is no longer used) -->
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.getRegistrations().then((regs) => {
+          regs.forEach((reg) => reg.unregister());
+        });
+      }
+    </script>
+
+    <!-- Bridge Jinja2 template variables into the static JS module -->
+    <script>
+      window.DEVFILE_CONFIG = {
+        predefinedRepos: {{ predefined_repos | tojson }},
+        predefinedConfigs: {{ predefined_configs | tojson }},
+        predefinedCommands: {{ predefined_commands | tojson }},
+        componentCatalog: {{ component_catalog | tojson }},
+      };
+    </script>
+
+    <!-- js-yaml must load before devfile.js since it's a module that references jsyaml on window -->
+    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+    <script type="module" src="/static/js/script.js"></script>
+  </body>
+</html>

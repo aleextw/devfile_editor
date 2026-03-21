@@ -1,0 +1,157 @@
+[
+  {
+    "id": "git-config",
+    "name": "Git Configuration",
+    "icon": "🌿",
+    "description": "Inject git user name and email as environment variables",
+    "fields": [
+      { "key": "GIT_USER_NAME",  "label": "Git User Name", "placeholder": "Jane Dev",            "type": "text" },
+      { "key": "GIT_USER_EMAIL", "label": "Git Email",     "placeholder": "jane@example.com",    "type": "text" }
+    ],
+    "contributions": {
+      "env": [
+        { "name": "GIT_USER_NAME",  "value_from": "GIT_USER_NAME"  },
+        { "name": "GIT_USER_EMAIL", "value_from": "GIT_USER_EMAIL" }
+      ]
+    }
+  },
+  {
+    "id": "docker-in-docker",
+    "name": "Docker-in-Docker",
+    "icon": "🐳",
+    "description": "Add a DinD sidecar volume for container builds inside the workspace",
+    "fields": [
+      { "key": "dind-vol-size", "label": "DinD Volume Size", "placeholder": "10Gi", "type": "text" }
+    ],
+    "contributions": {
+      "volumes": [
+        {
+          "name": "dind-storage",
+          "size_from": "dind-vol-size",
+          "size": "10Gi",
+          "mount_path": "/var/lib/docker"
+        }
+      ]
+    }
+  },
+  {
+    "id": "node-version",
+    "name": "Node.js Runtime",
+    "icon": "🟩",
+    "description": "Set the Node.js version and npm cache environment",
+    "fields": [
+      { "key": "NODE_VERSION",  "label": "Node Version",          "placeholder": "20",        "type": "text" },
+      { "key": "npm-cache-vol", "label": "npm Cache Volume Name",  "placeholder": "npm-cache", "type": "text" }
+    ],
+    "contributions": {
+      "env": [
+        { "name": "NODE_VERSION", "value_from": "NODE_VERSION" }
+      ],
+      "volumes": [
+        {
+          "name_from": "npm-cache-vol",
+          "name_default": "npm-cache",
+          "mount_path": "/root/.npm",
+          "slugify": true
+        }
+      ]
+    }
+  },
+  {
+    "id": "java-config",
+    "name": "Java / Maven",
+    "icon": "☕",
+    "description": "Configure JAVA_HOME and Maven settings",
+    "fields": [
+      { "key": "JAVA_VERSION", "label": "Java Version", "placeholder": "17",         "type": "text" },
+      { "key": "MAVEN_OPTS",   "label": "MAVEN_OPTS",   "placeholder": "-Xmx1024m",  "type": "text" }
+    ],
+    "contributions": {
+      "env": [
+        { "name": "JAVA_VERSION", "value_from": "JAVA_VERSION" },
+        { "name": "MAVEN_OPTS",   "value_from": "MAVEN_OPTS"   }
+      ]
+    }
+  },
+  {
+    "id": "python-config",
+    "name": "Python Runtime",
+    "icon": "🐍",
+    "description": "Set Python version and virtualenv path environment variables",
+    "fields": [
+      { "key": "PYTHON_VERSION", "label": "Python Version",    "placeholder": "3.11",          "type": "text" },
+      { "key": "VIRTUAL_ENV",    "label": "Virtual Env Path",  "placeholder": "/projects/.venv","type": "text" }
+    ],
+    "contributions": {
+      "env": [
+        { "name": "PYTHON_VERSION", "value_from": "PYTHON_VERSION" },
+        { "name": "VIRTUAL_ENV",    "value_from": "VIRTUAL_ENV"    }
+      ]
+    }
+  },
+  {
+    "id": "shared-volume",
+    "name": "Shared Volume",
+    "icon": "💾",
+    "description": "Add a named persistent volume shared across components",
+    "fields": [
+      { "key": "shared-vol-name", "label": "Volume Name", "placeholder": "shared-data", "type": "text" },
+      { "key": "shared-vol-size", "label": "Size",        "placeholder": "5Gi",         "type": "text" },
+      { "key": "shared-vol-path", "label": "Mount Path",  "placeholder": "/shared",     "type": "text" }
+    ],
+    "contributions": {
+      "volumes": [
+        {
+          "name_from": "shared-vol-name",
+          "name_default": "shared-data",
+          "size_from": "shared-vol-size",
+          "path_from": "shared-vol-path",
+          "mount_path": "/shared",
+          "slugify": true
+        }
+      ]
+    }
+  },
+  {
+    "id": "proxy-config",
+    "name": "HTTP Proxy",
+    "icon": "🔀",
+    "description": "Set HTTP/HTTPS proxy environment variables for the workspace",
+    "fields": [
+      { "key": "HTTP_PROXY",  "label": "HTTP_PROXY",  "placeholder": "http://proxy:3128",  "type": "text" },
+      { "key": "HTTPS_PROXY", "label": "HTTPS_PROXY", "placeholder": "http://proxy:3128",  "type": "text" },
+      { "key": "NO_PROXY",    "label": "NO_PROXY",    "placeholder": "localhost,127.0.0.1", "type": "text" }
+    ],
+    "contributions": {
+      "env": [
+        { "name": "HTTP_PROXY",  "value_from": "HTTP_PROXY"  },
+        { "name": "HTTPS_PROXY", "value_from": "HTTPS_PROXY" },
+        { "name": "NO_PROXY",    "value_from": "NO_PROXY"    }
+      ]
+    }
+  },
+  {
+    "id": "debug-port",
+    "name": "Debug Port",
+    "icon": "🐞",
+    "description": "Expose a debug endpoint on a configurable port",
+    "fields": [
+      { "key": "debug-port",    "label": "Debug Port",         "placeholder": "5005", "type": "number" },
+      { "key": "DEBUG_SUSPEND", "label": "DEBUG_SUSPEND (y/n)","placeholder": "n",    "type": "text"   }
+    ],
+    "contributions": {
+      "env": [
+        { "name": "DEBUG_SUSPEND", "value_from": "DEBUG_SUSPEND" }
+      ],
+      "endpoints": [
+        {
+          "name": "debug",
+          "port_from": "debug-port",
+          "target_port": 5005,
+          "protocol": "tcp",
+          "exposure": "internal"
+        }
+      ]
+    }
+  }
+]

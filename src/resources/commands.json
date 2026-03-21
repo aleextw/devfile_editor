@@ -1,0 +1,65 @@
+[
+  {
+    "id": "build",
+    "display_name": "Build",
+    "description": "Compile the project",
+    "exec": {
+      "commandLine": "npm run build",
+      "component": "",
+      "workingDir": "$PROJECT_SOURCE",
+      "group": { "kind": "build", "isDefault": true }
+    }
+  },
+  {
+    "id": "run",
+    "display_name": "Run",
+    "description": "Start the application in development mode",
+    "exec": {
+      "commandLine": "npm start",
+      "component": "",
+      "workingDir": "$PROJECT_SOURCE",
+      "group": { "kind": "run", "isDefault": true }
+    }
+  },
+  {
+    "id": "test",
+    "display_name": "Test",
+    "description": "Run the test suite",
+    "exec": {
+      "commandLine": "npm test",
+      "component": "",
+      "workingDir": "$PROJECT_SOURCE",
+      "group": { "kind": "test", "isDefault": true }
+    }
+  },
+  {
+    "id": "debug",
+    "display_name": "Debug",
+    "description": "Start the application with the debugger attached",
+    "exec": {
+      "commandLine": "node --inspect=0.0.0.0:9229 dist/index.js",
+      "component": "",
+      "workingDir": "$PROJECT_SOURCE",
+      "group": { "kind": "debug", "isDefault": true }
+    }
+  },
+  {
+    "id": "build-and-run",
+    "display_name": "Build & Run",
+    "description": "Compile then start — composite command example",
+    "composite": {
+      "commands": ["build", "run"],
+      "parallel": false,
+      "group": { "kind": "run", "isDefault": false }
+    }
+  },
+  {
+    "id": "init-tools",
+    "display_name": "Initialise Tools",
+    "description": "Apply a tooling component at workspace start — apply command example",
+    "apply": {
+      "component": "dev",
+      "group": { "kind": "build", "isDefault": false }
+    }
+  }
+]
