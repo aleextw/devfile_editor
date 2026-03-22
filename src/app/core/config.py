@@ -26,7 +26,7 @@ from app.model.devfile import (
     ComponentCatalogItem,
     JsonStrList,
 )
-from src.app.util.devfile import _encode_blob, _devfile_to_state
+from app.util.devfile import _encode_blob, _devfile_to_state
 
 logger = logging.getLogger(__name__)
 
