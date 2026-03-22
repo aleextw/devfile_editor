@@ -1,0 +1,61 @@
+/* devfile_components.css — component catalog section */
+
+.component-catalog {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.catalog-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+}
+
+.catalog-item:hover {
+    border-color: var(--border-bright);
+    transform: translateY(-1px);
+}
+
+.catalog-item.selected {
+    border-color: var(--accent);
+    background: rgba(79, 156, 249, 0.06);
+}
+
+.catalog-item.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.catalog-icon {
+    font-size: 22px;
+    margin-bottom: 8px;
+}
+
+.catalog-name {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.catalog-desc {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.5;
+}
+
+.active-components {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}

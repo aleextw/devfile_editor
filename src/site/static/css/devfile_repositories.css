@@ -1,0 +1,95 @@
+/* devfile_repositories.css — repositories and starter projects section */
+
+/* ── Repo entry rows ── */
+.repo-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.repo-entry {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    display: grid;
+    grid-template-columns: 1fr 2fr 120px auto;
+    gap: 8px;
+    align-items: end;
+    transition: border-color 0.15s;
+}
+
+.repo-entry:hover {
+    border-color: var(--border-bright);
+}
+
+.repo-entry .remove-btn {
+    display: flex;
+    align-items: center;
+    padding-bottom: 1px;
+}
+
+/* ── Predefined repo picker ── */
+.predefined-repo-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    user-select: none;
+}
+
+.predefined-repo-row:hover {
+    border-color: var(--border-bright);
+    background: var(--surface3);
+}
+
+.predefined-repo-row:has(.predefined-repo-check:checked) {
+    border-color: var(--accent);
+    background: rgba(79, 156, 249, 0.06);
+}
+
+.predefined-repo-check {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.predefined-repo-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.predefined-repo-name {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.predefined-repo-desc {
+    font-size: 11px;
+    color: var(--text-dim);
+}
+
+.predefined-repo-url {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-faint);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.predefined-repo-branch {
+    flex-shrink: 0;
+}

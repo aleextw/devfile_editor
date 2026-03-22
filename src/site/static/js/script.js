@@ -16,11 +16,10 @@ const PREDEFINED_REPOS = window.DEVFILE_CONFIG?.predefinedRepos ?? [];
 const PREDEFINED_CONFIGS = window.DEVFILE_CONFIG?.predefinedConfigs ?? [];
 
 // ─── State ────────────────────────────────────────────────────────────────────
-// Repo shape mirrors the devfile Project schema:
+// Repo/starter shape (flat — UI only deals with a single "origin" remote):
 //   name       — project.name
-//   remotes    — project.git.remotes  (object, e.g. {origin: "https://..."})
+//   remote     — the origin URL (maps to project.git.remotes.origin)
 //   revision   — project.git.checkoutFrom.revision  (branch / tag / commit)
-//   remote     — project.git.checkoutFrom.remote    (only needed with multiple remotes)
 //   clonePath  — project.clonePath
 const state = {
   repos: [],
@@ -202,53 +201,24 @@ function renderRepos() {
   list.innerHTML = "";
   empty.style.display = state.repos.length ? "none" : "block";
   state.repos.forEach((r, i) => {
-    // Primary remote is the first entry in the remotes object (usually "origin")
-    const remoteEntries = Object.entries(r.remotes || {});
-    const primaryName = remoteEntries[0]?.[0] ?? "origin";
-    const primaryUrl = remoteEntries[0]?.[1] ?? "";
-    // Extra remotes beyond the first
-    const extraEntries = remoteEntries.slice(1);
-
     const entry = document.createElement("div");
     entry.className = "repo-entry";
-    entry.style.gridTemplateColumns = "1fr 1fr auto";
+    entry.style.gridTemplateColumns = "1fr 2fr 120px auto";
     entry.innerHTML = `
       <div class="field-group">
         <label class="field-label">Project Name</label>
         <input type="text" value="${r.name}" placeholder="my-project"
                data-field="name" data-idx="${i}">
-        <p class="field-hint">^[a-z0-9]([-a-z0-9]*[a-z0-9])?$, max 63 chars</p>
       </div>
       <div class="field-group">
-        <label class="field-label">Remote URL
-          <span class="tag" style="margin-left:6px;font-size:9px">${primaryName}</span>
-        </label>
-        <input type="text" value="${primaryUrl}" placeholder="https://github.com/org/repo"
-               data-field="remotes.${primaryName}" data-idx="${i}">
-        ${extraEntries
-          .map(
-            ([rname, rurl]) => `
-          <div style="display:flex;gap:6px;margin-top:6px;align-items:center">
-            <span class="tag" style="flex-shrink:0;font-size:9px">${rname}</span>
-            <input type="text" value="${rurl}" placeholder="https://..."
-                   data-field="remotes.${rname}" data-idx="${i}" style="flex:1">
-          </div>`,
-          )
-          .join("")}
+        <label class="field-label">Remote URL</label>
+        <input type="text" value="${r.remote || ""}" placeholder="https://github.com/org/repo"
+               data-field="remote" data-idx="${i}">
       </div>
       <div class="field-group">
         <label class="field-label">Branch / Revision</label>
         <input type="text" value="${r.revision ?? "main"}" placeholder="main"
                data-field="revision" data-idx="${i}">
-        ${
-          remoteEntries.length > 1
-            ? `
-          <label class="field-label" style="margin-top:8px">Checkout Remote</label>
-          <input type="text" value="${r.remote ?? ""}" placeholder="${primaryName}"
-                 data-field="remote" data-idx="${i}">
-          <p class="field-hint">Required when multiple remotes are configured.</p>`
-            : ""
-        }
       </div>
       <div class="remove-btn">
         <button class="btn btn-danger btn-sm" data-remove="${i}">✕</button>
@@ -256,20 +226,10 @@ function renderRepos() {
     list.appendChild(entry);
   });
 
-  // Wire up field changes — handle both simple fields and nested remotes.X
   list.querySelectorAll("input[data-field]").forEach((inp) =>
     inp.addEventListener("input", (e) => {
-      const idx = +e.target.dataset.idx;
-      const field = e.target.dataset.field;
-      if (field.startsWith("remotes.")) {
-        const remoteName = field.slice("remotes.".length);
-        state.repos[idx].remotes = {
-          ...state.repos[idx].remotes,
-          [remoteName]: e.target.value,
-        };
-      } else {
-        state.repos[idx][field] = e.target.value;
-      }
+      state.repos[+e.target.dataset.idx][e.target.dataset.field] =
+        e.target.value;
       renderBadge("repositories", state.repos.length);
     }),
   );
@@ -283,13 +243,7 @@ function renderRepos() {
 }
 
 el("add-repo-btn").addEventListener("click", () => {
-  state.repos.push({
-    name: "",
-    remotes: { origin: "" },
-    revision: "main",
-    remote: "",
-    clonePath: "",
-  });
+  state.repos.push({ name: "", remote: "", revision: "main", clonePath: "" });
   renderRepos();
 });
 
@@ -340,9 +294,8 @@ if (PREDEFINED_REPOS.length) {
 
       state.repos.push({
         name,
-        remotes: predefined.remotes,
-        revision: predefined.revision || "main",
         remote: predefined.remote || "",
+        revision: predefined.revision || "main",
         clonePath: predefined.clone_path || name,
       });
       check.checked = false;
@@ -362,18 +315,19 @@ function renderStarters() {
   list.innerHTML = "";
   empty.style.display = state.starters.length ? "none" : "block";
   state.starters.forEach((r, i) => {
-    const primaryUrl = Object.values(r.remotes || {})[0] ?? "";
     const entry = document.createElement("div");
     entry.className = "repo-entry";
+    entry.style.gridTemplateColumns = "1fr 2fr 120px auto";
     entry.innerHTML = `
       <div class="field-group">
         <label class="field-label">Starter Name</label>
-        <input type="text" value="${r.name}" placeholder="my-starter" data-field="name" data-idx="${i}">
+        <input type="text" value="${r.name}" placeholder="my-starter"
+               data-field="name" data-idx="${i}">
       </div>
       <div class="field-group">
         <label class="field-label">Remote URL</label>
-        <input type="text" value="${primaryUrl}" placeholder="https://github.com/org/starter"
-               data-field="remotes.origin" data-idx="${i}">
+        <input type="text" value="${r.remote || ""}" placeholder="https://github.com/org/starter"
+               data-field="remote" data-idx="${i}">
       </div>
       <div class="field-group">
         <label class="field-label">Branch / Revision</label>
@@ -387,17 +341,8 @@ function renderStarters() {
   });
   list.querySelectorAll("input[data-field]").forEach((inp) =>
     inp.addEventListener("input", (e) => {
-      const idx = +e.target.dataset.idx;
-      const field = e.target.dataset.field;
-      if (field.startsWith("remotes.")) {
-        const remoteName = field.slice("remotes.".length);
-        state.starters[idx].remotes = {
-          ...state.starters[idx].remotes,
-          [remoteName]: e.target.value,
-        };
-      } else {
-        state.starters[idx][field] = e.target.value;
-      }
+      state.starters[+e.target.dataset.idx][e.target.dataset.field] =
+        e.target.value;
     }),
   );
   list.querySelectorAll("[data-remove]").forEach((btn) =>
@@ -408,12 +353,7 @@ function renderStarters() {
   );
 }
 el("add-starter-btn").addEventListener("click", () => {
-  state.starters.push({
-    name: "",
-    remotes: { origin: "" },
-    revision: "main",
-    remote: "",
-  });
+  state.starters.push({ name: "", remote: "", revision: "main" });
   renderStarters();
 });
 
@@ -1070,11 +1010,22 @@ renderActiveComponents();
 function generateDevfileData() {
   syncResourceState();
   const r = state.resources;
+
+  // Helpers (scoped here so they don't pollute the module)
+  function resolve(literal, fromKey, cfg) {
+    return (fromKey ? cfg[fromKey] || "" : "") || literal || "";
+  }
+  function slugify(s) {
+    return (s || "").toLowerCase().replace(/[^a-z0-9-]/g, "-");
+  }
+
+  // ── Env vars ──────────────────────────────────────────────────────────────
   const envVars = [];
   state.customEnv
     .filter((e) => e.name)
     .forEach((e) => envVars.push({ name: e.name, value: e.value }));
 
+  // ── Volumes ───────────────────────────────────────────────────────────────
   const volComponents = [];
   const volMounts = [];
   state.volumes
@@ -1087,107 +1038,12 @@ function generateDevfileData() {
       volMounts.push({ name: v.name, path: v.mountPath || `/${v.name}` });
     });
 
+  // ── Endpoints ─────────────────────────────────────────────────────────────
   const allEndpoints = [
     ...state.endpoints.filter((e) => e.name && e.targetPort),
   ];
 
-  // ── Catalog contributions (generic, data-driven) ────────────────────────────
-  function slugify(s) {
-    return s.toLowerCase().replace(/[^a-z0-9-]/g, "-");
-  }
-
-  CATALOG.filter((c) => state.activeComponents.has(c.id)).forEach((item) => {
-    const cfg = state.componentConfigs[item.id] || {};
-    const contrib = item.contributions || {};
-
-    // Env vars
-    (contrib.env || []).forEach((e) => {
-      const val = e.value || (e.value_from ? cfg[e.value_from] || "" : "");
-      if (val) envVars.push({ name: e.name, value: val });
-    });
-
-    // Volumes
-    (contrib.volumes || []).forEach((v) => {
-      let vname = v.name || "";
-      if (!vname && v.name_from) {
-        const raw = cfg[v.name_from] || v.name_default || "";
-        vname = v.slugify !== false ? slugify(raw) : raw;
-      }
-      if (!vname) return;
-      const size = v.size || (v.size_from ? cfg[v.size_from] || "" : "");
-      const volDef = size ? { size } : {};
-      volComponents.push({ name: vname, volume: volDef });
-      const mountPath =
-        (v.path_from ? cfg[v.path_from] || "" : "") ||
-        v.mount_path ||
-        `/${vname}`;
-      volMounts.push({ name: vname, path: mountPath });
-    });
-
-    // Endpoints
-    (contrib.endpoints || []).forEach((ep) => {
-      const port = ep.port_from
-        ? parseInt(cfg[ep.port_from]) || ep.target_port || 0
-        : ep.target_port || 0;
-      if (port)
-        allEndpoints.push({
-          name: ep.name,
-          targetPort: port,
-          protocol: ep.protocol || "tcp",
-          exposure: ep.exposure || "internal",
-        });
-    });
-  });
-  const containerComp = {
-    name: r.name || "dev",
-    container: {
-      image: r.image || "quay.io/devfile/universal-developer-image:latest",
-      ...(r.cpuRequest ? { cpuRequest: r.cpuRequest } : {}),
-      ...(r.cpuLimit ? { cpuLimit: r.cpuLimit } : {}),
-      ...(r.memRequest ? { memoryRequest: r.memRequest } : {}),
-      ...(r.memLimit ? { memoryLimit: r.memLimit } : {}),
-      mountSources: r.mountSources,
-      ...(r.sourceMapping ? { sourceMapping: r.sourceMapping } : {}),
-      ...(r.dedicatedPod ? { dedicatedPod: true } : {}),
-      ...(envVars.length ? { env: envVars } : {}),
-      ...(allEndpoints.length ? { endpoints: allEndpoints } : {}),
-      ...(volMounts.length ? { volumeMounts: volMounts } : {}),
-    },
-  };
-  const components = [containerComp, ...volComponents];
-  const projects = state.repos.map((r) => {
-    const checkoutFrom = {};
-    if (r.revision && r.revision !== "main") checkoutFrom.revision = r.revision;
-    if (r.remote) checkoutFrom.remote = r.remote;
-    return {
-      name: r.name,
-      git: {
-        remotes: r.remotes,
-        ...(Object.keys(checkoutFrom).length ? { checkoutFrom } : {}),
-      },
-      ...(r.clonePath && r.clonePath !== r.name
-        ? { clonePath: r.clonePath }
-        : {}),
-    };
-  });
-  const starterProjects = state.starters
-    .filter(
-      (s) =>
-        s.name && s.remotes && Object.keys(s.remotes).some((k) => s.remotes[k]),
-    )
-    .map((s) => {
-      const checkoutFrom = {};
-      if (s.revision && s.revision !== "main")
-        checkoutFrom.revision = s.revision;
-      if (s.remote) checkoutFrom.remote = s.remote;
-      return {
-        name: s.name,
-        git: {
-          remotes: s.remotes,
-          ...(Object.keys(checkoutFrom).length ? { checkoutFrom } : {}),
-        },
-      };
-    });
+  // ── Commands ──────────────────────────────────────────────────────────────
   const commands = state.commands
     .filter((c) => c.id)
     .map((c) => {
@@ -1230,14 +1086,182 @@ function generateDevfileData() {
       }
       return entry;
     });
+
+  // ── Events ────────────────────────────────────────────────────────────────
   const evts = state.events || {};
   const eventsObj = {};
-  if (evts.preStart?.length) eventsObj.preStart = evts.preStart;
-  if (evts.postStart?.length) eventsObj.postStart = evts.postStart;
-  if (evts.preStop?.length) eventsObj.preStop = evts.preStop;
-  if (evts.postStop?.length) eventsObj.postStop = evts.postStop;
+  if (evts.preStart?.length) eventsObj.preStart = [...evts.preStart];
+  if (evts.postStart?.length) eventsObj.postStart = [...evts.postStart];
+  if (evts.preStop?.length) eventsObj.preStop = [...evts.preStop];
+  if (evts.postStop?.length) eventsObj.postStop = [...evts.postStop];
 
-  return {
+  // ── Catalog contributions (generic, data-driven) ──────────────────────────
+  // Runs after state commands/events are built so catalog contributions
+  // are appended to those same arrays (skipping duplicate IDs, deduplicating
+  // event bindings).
+  // Collect any errors accumulated during the catalog contribution pass
+  // (currently: command ID conflicts). Populated inside the forEach above.
+  const catalogErrors = [];
+
+  CATALOG.filter((c) => state.activeComponents.has(c.id)).forEach((item) => {
+    const cfg = state.componentConfigs[item.id] || {};
+    const contrib = item.contributions || {};
+
+    (contrib.env || []).forEach((e) => {
+      const val = resolve(e.value, e.value_from, cfg);
+      if (val) envVars.push({ name: e.name, value: val });
+    });
+
+    (contrib.volumes || []).forEach((v) => {
+      let vname = v.name || "";
+      if (!vname && v.name_from) {
+        const raw = cfg[v.name_from] || v.name_default || "";
+        vname = v.slugify !== false ? slugify(raw) : raw;
+      }
+      if (!vname) return;
+      const size = resolve(v.size, v.size_from, cfg);
+      volComponents.push({ name: vname, volume: size ? { size } : {} });
+      volMounts.push({
+        name: vname,
+        path: resolve(v.mount_path, v.path_from, cfg) || `/${vname}`,
+      });
+    });
+
+    (contrib.endpoints || []).forEach((ep) => {
+      const port = ep.port_from
+        ? parseInt(cfg[ep.port_from]) || ep.target_port || 0
+        : ep.target_port || 0;
+      if (port)
+        allEndpoints.push({
+          name: ep.name,
+          targetPort: port,
+          protocol: ep.protocol || "tcp",
+          exposure: ep.exposure || "internal",
+        });
+    });
+
+    const existingIds = new Set(commands.map((c) => c.id));
+    const conflictErrors = [];
+    (contrib.commands || []).forEach((cc) => {
+      if (!cc.id) return;
+      if (existingIds.has(cc.id)) {
+        conflictErrors.push(
+          `Command ID "${cc.id}" contributed by catalog item "${item.name}" ` +
+            `conflicts with an existing command. Rename the command in the Commands section or remove it.`,
+        );
+        return;
+      }
+      const entry = { id: cc.id };
+      if (cc.type === "exec" && cc.exec) {
+        const ex = cc.exec;
+        const exec = {
+          commandLine: resolve(ex.commandLine || "", ex.commandLine_from, cfg),
+          component: resolve(ex.component || "", ex.component_from, cfg),
+        };
+        const wd = resolve(ex.workingDir || "", ex.workingDir_from, cfg);
+        if (wd) exec.workingDir = wd;
+        if (ex.label) exec.label = ex.label;
+        if (ex.hotReloadCapable) exec.hotReloadCapable = true;
+        if (ex.group?.kind)
+          exec.group = { kind: ex.group.kind, isDefault: !!ex.group.isDefault };
+        entry.exec = exec;
+      } else if (cc.type === "composite" && cc.composite) {
+        const cp = cc.composite;
+        const comp = {};
+        const subCmds = (cp.commands || [])
+          .map((sub) =>
+            typeof sub === "string"
+              ? sub
+              : sub.id_from
+                ? cfg[sub.id_from] || ""
+                : "",
+          )
+          .filter(Boolean);
+        if (subCmds.length) comp.commands = subCmds;
+        if (cp.parallel) comp.parallel = true;
+        if (cp.label) comp.label = cp.label;
+        if (cp.group?.kind)
+          comp.group = { kind: cp.group.kind, isDefault: !!cp.group.isDefault };
+        entry.composite = comp;
+      } else if (cc.type === "apply" && cc.apply) {
+        const ap = cc.apply;
+        const apply = {
+          component: resolve(ap.component || "", ap.component_from, cfg),
+        };
+        if (ap.label) apply.label = ap.label;
+        if (ap.group?.kind)
+          apply.group = {
+            kind: ap.group.kind,
+            isDefault: !!ap.group.isDefault,
+          };
+        entry.apply = apply;
+      } else return;
+      commands.push(entry);
+      existingIds.add(cc.id);
+    });
+    catalogErrors.push(...conflictErrors);
+
+    (contrib.events || []).forEach((evt) => {
+      if (!evt.type || !evt.command_id) return;
+      if (!eventsObj[evt.type]) eventsObj[evt.type] = [];
+      if (!eventsObj[evt.type].includes(evt.command_id))
+        eventsObj[evt.type].push(evt.command_id);
+    });
+  });
+
+  // ── Assemble container component ──────────────────────────────────────────
+  const containerComp = {
+    name: r.name || "dev",
+    container: {
+      image: r.image || "quay.io/devfile/universal-developer-image:latest",
+      ...(r.cpuRequest ? { cpuRequest: r.cpuRequest } : {}),
+      ...(r.cpuLimit ? { cpuLimit: r.cpuLimit } : {}),
+      ...(r.memRequest ? { memoryRequest: r.memRequest } : {}),
+      ...(r.memLimit ? { memoryLimit: r.memLimit } : {}),
+      mountSources: r.mountSources,
+      ...(r.sourceMapping ? { sourceMapping: r.sourceMapping } : {}),
+      ...(r.dedicatedPod ? { dedicatedPod: true } : {}),
+      ...(envVars.length ? { env: envVars } : {}),
+      ...(allEndpoints.length ? { endpoints: allEndpoints } : {}),
+      ...(volMounts.length ? { volumeMounts: volMounts } : {}),
+    },
+  };
+  const components = [containerComp, ...volComponents];
+
+  const projects = state.repos
+    .filter((r) => r.name && r.remote)
+    .map((r) => {
+      const checkoutFrom = {};
+      if (r.revision && r.revision !== "main")
+        checkoutFrom.revision = r.revision;
+      return {
+        name: r.name,
+        git: {
+          remotes: { origin: r.remote },
+          ...(Object.keys(checkoutFrom).length ? { checkoutFrom } : {}),
+        },
+        ...(r.clonePath && r.clonePath !== r.name
+          ? { clonePath: r.clonePath }
+          : {}),
+      };
+    });
+
+  const starterProjects = state.starters
+    .filter((s) => s.name && s.remote)
+    .map((s) => {
+      const checkoutFrom = {};
+      if (s.revision && s.revision !== "main")
+        checkoutFrom.revision = s.revision;
+      return {
+        name: s.name,
+        git: {
+          remotes: { origin: s.remote },
+          ...(Object.keys(checkoutFrom).length ? { checkoutFrom } : {}),
+        },
+      };
+    });
+
+  const data = {
     schemaVersion: "2.3.0",
     components,
     ...(projects.length ? { projects } : {}),
@@ -1245,11 +1269,21 @@ function generateDevfileData() {
     ...(commands.length ? { commands } : {}),
     ...(Object.keys(eventsObj).length ? { events: eventsObj } : {}),
   };
+  return { data, errors: catalogErrors };
 }
 
 function generate() {
-  const data = generateDevfileData();
+  const { data, errors: catalogErrors } = generateDevfileData();
   const statusEl = el("output-status");
+
+  // Catalog errors (e.g. command ID conflicts) are blocking — show them and
+  // do not emit output until the user resolves them.
+  if (catalogErrors.length) {
+    statusEl.className = "status-bar err";
+    statusEl.innerHTML = catalogErrors.map((e) => `✖ ${e}`).join("<br>");
+    return;
+  }
+
   try {
     new Devfile(data);
     statusEl.className = "status-bar ok";
@@ -1329,8 +1363,17 @@ async function pushStateToURL() {
 }
 
 function hydrateStateFromParsed(parsed) {
-  state.repos = parsed.repos || [];
-  state.starters = parsed.starters || [];
+  state.repos = (parsed.repos || []).map((r) => ({
+    name: r.name || "",
+    remote: r.remote || Object.values(r.remotes || {})[0] || "",
+    revision: r.revision || "main",
+    clonePath: r.clonePath || r.name || "",
+  }));
+  state.starters = (parsed.starters || []).map((s) => ({
+    name: s.name || "",
+    remote: s.remote || Object.values(s.remotes || {})[0] || "",
+    revision: s.revision || "main",
+  }));
   state.resources = { ...state.resources, ...parsed.resources };
   state.endpoints = parsed.endpoints || [];
   state.customEnv = parsed.customEnv || [];
@@ -1522,9 +1565,8 @@ el("do-import-btn").addEventListener("click", () => {
     if (devfile.projects) {
       state.repos = devfile.projects.map((p) => ({
         name: p.name,
-        remotes: p.git?.remotes ?? {},
+        remote: Object.values(p.git?.remotes ?? {})[0] || "",
         revision: p.git?.checkoutFrom?.revision ?? "main",
-        remote: p.git?.checkoutFrom?.remote ?? "",
         clonePath: p.clonePath || p.name,
       }));
       renderRepos();
@@ -1532,9 +1574,8 @@ el("do-import-btn").addEventListener("click", () => {
     if (devfile.starterProjects) {
       state.starters = devfile.starterProjects.map((p) => ({
         name: p.name,
-        remotes: p.git?.remotes ?? {},
+        remote: Object.values(p.git?.remotes ?? {})[0] || "",
         revision: p.git?.checkoutFrom?.revision ?? "main",
-        remote: p.git?.checkoutFrom?.remote ?? "",
       }));
       renderStarters();
     }

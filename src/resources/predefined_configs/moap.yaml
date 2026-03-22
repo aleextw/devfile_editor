@@ -27,6 +27,3 @@ projects:
     git:
       remotes:
         origin: https://github.com/me/shared-lib
-        upstream: https://github.com/org/shared-lib
-      checkoutFrom:
-        remote: origin

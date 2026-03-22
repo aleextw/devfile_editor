@@ -1,0 +1,64 @@
+{# _devfile_section_repositories.html — repositories and starter projects #}
+<div class="section active" id="section-repositories">
+    <div class="section-header">
+        <h2>// repositories</h2>
+        <p>Define the project sources used in this devworkspace. Each repository maps to a project cloned into the
+            workspace at startup.</p>
+    </div>
+
+    {% if predefined_repos %}
+    <div class="card" id="predefined-repos-card">
+        <div class="card-header" style="margin-bottom:12px">
+            <span class="card-title">Predefined Repositories</span>
+            <div class="flex-gap">
+                <button class="btn btn-ghost btn-sm" id="select-all-repos-btn">Select All</button>
+                <button class="btn btn-secondary btn-sm" id="add-selected-repos-btn">+ Add Selected</button>
+            </div>
+        </div>
+        <p style="font-size:12px;color:var(--text-dim);margin-bottom:12px;line-height:1.6">
+            Select one or more repositories from your organisation's catalog, then click <strong>+ Add Selected</strong>
+            to add them to your project list.
+        </p>
+        <div id="predefined-repo-list" style="display:flex;flex-direction:column;gap:6px;">
+            {% for repo in predefined_repos %}
+            <label class="predefined-repo-row" data-name="{{ repo.name }}" data-revision="{{ repo.revision }}"
+                data-remote="{{ repo.remote }}" data-clone-path="{{ repo.clone_path }}">
+                <input type="checkbox" class="predefined-repo-check">
+                <div class="predefined-repo-info">
+                    <span class="predefined-repo-name">{{ repo.name }}</span>
+                    {% if repo.description %}
+                    <span class="predefined-repo-desc">{{ repo.description }}</span>
+                    {% endif %}
+                    <span class="predefined-repo-url">{{ repo.remote }}</span>
+                </div>
+                <span class="predefined-repo-branch tag">{{ repo.revision }}</span>
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="card {% if predefined_repos %}mt-16{% endif %}">
+        <div class="card-header">
+            <span class="card-title">Projects</span>
+            <button class="btn btn-secondary btn-sm" id="add-repo-btn">+ Add Custom Repository</button>
+        </div>
+        <div class="repo-list" id="repo-list"></div>
+        <div id="repo-empty" style="color:var(--text-faint);font-size:13px;text-align:center;padding:24px 0;">
+            No repositories added yet.{% if predefined_repos %} Select from the catalog above, or click <strong
+                style="color:var(--text-dim)">+ Add Custom Repository</strong> to enter a URL manually.{% else %} Click
+            <strong style="color:var(--text-dim)">+ Add Custom Repository</strong> to begin.{% endif %}
+        </div>
+    </div>
+
+    <div class="card mt-16">
+        <div class="card-header">
+            <span class="card-title">Starter Projects</span>
+            <button class="btn btn-secondary btn-sm" id="add-starter-btn">+ Add Starter</button>
+        </div>
+        <div class="repo-list" id="starter-list"></div>
+        <div id="starter-empty" style="color:var(--text-faint);font-size:13px;text-align:center;padding:24px 0;">
+            Starter projects are templates users can bootstrap from. Optional.
+        </div>
+    </div>
+</div>

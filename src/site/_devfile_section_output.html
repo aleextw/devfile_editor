@@ -1,0 +1,57 @@
+{# _devfile_section_output.html — export YAML / JSON output and share links #}
+<div class="section" id="section-output">
+    <div class="section-header">
+        <h2>// export</h2>
+        <p>Review and export the generated devfile. Switch between YAML and JSON views.</p>
+    </div>
+
+    <div id="output-status" class="status-bar info">ℹ Click <strong>Generate &amp; Export</strong> to build your devfile
+        from the current configuration.</div>
+
+    <div class="card mb-16" id="share-panel" style="display:none">
+        <div class="card-header" style="margin-bottom:10px">
+            <span class="card-title">🔗 Share Link</span>
+            <span class="tag green" id="share-size-tag"></span>
+        </div>
+        <p style="font-size:12px;color:var(--text-dim);margin-bottom:10px;line-height:1.6">
+            This URL encodes your entire configuration as a compressed hash. Anyone opening it will have the full
+            configuration loaded automatically.
+            The <code style="font-family:var(--mono);font-size:11px;color:var(--accent)">/raw</code> URL is served by
+            the backend with <code
+                style="font-family:var(--mono);font-size:11px;color:var(--accent)">Content-Type: text/yaml</code> —
+            point your devworkspace operator directly at it.
+        </p>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+            <input type="text" id="share-url" readonly
+                style="flex:1;font-size:11px;color:var(--accent);background:var(--surface2)">
+            <button class="btn btn-secondary btn-sm" id="copy-share-btn">⎘ Copy</button>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+            <input type="text" id="raw-url" readonly
+                style="flex:1;font-size:11px;color:var(--accent3);background:var(--surface2)">
+            <button class="btn btn-ghost btn-sm" id="copy-raw-btn">⎘ Copy Raw</button>
+        </div>
+        <p class="field-hint mt-8">Raw URL is served by the backend with <code
+                style="font-size:10px;font-family:var(--mono)">Content-Type: text/yaml</code>. Fetchable by any HTTP
+            client.</p>
+    </div>
+
+    <div class="flex-between mb-16">
+        <div class="output-tabs">
+            <div class="output-tab active" data-tab="yaml">YAML</div>
+            <div class="output-tab" data-tab="json">JSON</div>
+        </div>
+        <div class="flex-gap">
+            <button class="btn btn-secondary btn-sm" id="output-generate-btn">↻ Regenerate</button>
+            <button class="btn btn-ghost btn-sm" id="copy-btn">⎘ Copy</button>
+            <button class="btn btn-success btn-sm" id="download-btn">⬇ Download</button>
+        </div>
+    </div>
+
+    <div class="output-pane active" id="pane-yaml">
+        <div class="code-block" id="yaml-output"># Click "Regenerate" to generate your devfile YAML</div>
+    </div>
+    <div class="output-pane" id="pane-json">
+        <div class="code-block" id="json-output">// JSON output will appear here</div>
+    </div>
+</div>

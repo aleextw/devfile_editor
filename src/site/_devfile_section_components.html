@@ -1,0 +1,49 @@
+{# _devfile_section_components.html — component catalog, env vars, volume mounts #}
+<div class="section" id="section-components">
+    <div class="section-header">
+        <h2>// components</h2>
+        <p>Add pre-built component bundles to your devfile. Each bundle can inject environment variables, volume mounts,
+            and endpoints. Set <code
+                style="font-family:var(--mono);font-size:11px">DEVFILE_COMPONENT_CATALOG_FILE</code> to load a catalog.
+        </p>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title">Component Library</span></div>
+        <div class="component-catalog" id="component-catalog"></div>
+        <div id="catalog-empty"
+            style="color:var(--text-faint);font-size:13px;text-align:center;padding:24px 0;display:none;">
+            No component catalog configured. Set <code
+                style="font-family:var(--mono);font-size:11px">DEVFILE_COMPONENT_CATALOG_FILE</code> in your <code
+                style="font-family:var(--mono);font-size:11px">.env</code> to load a catalog.
+        </div>
+    </div>
+
+    <div class="card mt-16">
+        <div class="card-header"><span class="card-title">Active Components</span></div>
+        <div class="active-components" id="active-components"></div>
+        <div id="active-components-empty"
+            style="color:var(--text-faint);font-size:13px;text-align:center;padding:24px 0;">Select components from the
+            library above to configure them.</div>
+    </div>
+
+    <div class="card mt-16">
+        <div class="card-header">
+            <span class="card-title">Custom Environment Variables</span>
+            <button class="btn btn-secondary btn-sm" id="add-env-btn">+ Add Variable</button>
+        </div>
+        <div class="env-list" id="custom-env-list"></div>
+        <div id="custom-env-empty" style="color:var(--text-faint);font-size:13px;text-align:center;padding:16px 0;">No
+            custom environment variables.</div>
+    </div>
+
+    <div class="card mt-16">
+        <div class="card-header">
+            <span class="card-title">Volume Mounts</span>
+            <button class="btn btn-secondary btn-sm" id="add-vol-btn">+ Add Volume</button>
+        </div>
+        <div id="volume-list"></div>
+        <div id="volume-empty" style="color:var(--text-faint);font-size:13px;text-align:center;padding:16px 0;">No
+            volume mounts defined.</div>
+    </div>
+</div>

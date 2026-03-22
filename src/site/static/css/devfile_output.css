@@ -1,0 +1,35 @@
+/* devfile_output.css — output (export) section */
+
+.output-tabs {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 4px;
+    width: fit-content;
+}
+
+.output-tab {
+    padding: 6px 14px;
+    font-family: var(--mono);
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    color: var(--text-dim);
+    transition: all 0.15s;
+}
+
+.output-tab.active {
+    background: var(--surface3);
+    color: var(--text);
+}
+
+.output-pane {
+    display: none;
+}
+
+.output-pane.active {
+    display: block;
+}

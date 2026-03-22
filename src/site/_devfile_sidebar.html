@@ -1,0 +1,40 @@
+{# _devfile_sidebar.html — sidebar navigation for the devfile configurator #}
+<nav class="sidebar-nav">
+    <div class="nav-section-label">Configure</div>
+    <div class="nav-item active" data-section="repositories">
+        <span class="nav-icon">📦</span> Repositories
+        <span class="nav-badge" id="repo-badge">0</span>
+    </div>
+    <div class="nav-item" data-section="resources">
+        <span class="nav-icon">⚙️</span> Resources
+    </div>
+    <div class="nav-item" data-section="components">
+        <span class="nav-icon">🧩</span> Components
+        <span class="nav-badge" id="comp-badge">0</span>
+    </div>
+    <div class="nav-item" data-section="commands">
+        <span class="nav-icon">⚡</span> Commands
+        <span class="nav-badge" id="commands-badge">0</span>
+    </div>
+    <div class="nav-item" data-section="events">
+        <span class="nav-icon">🔔</span> Events
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-section-label">Output</div>
+    <div class="nav-item" data-section="output">
+        <span class="nav-icon">📄</span> Export YAML
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-section-label">Import</div>
+    <div class="nav-item" data-section="import">
+        <span class="nav-icon">⬆</span> Import &amp; Validate
+    </div>
+    {% if predefined_configs %}
+    <div class="nav-divider"></div>
+    <div class="nav-section-label">Templates</div>
+    <div class="nav-item" data-section="templates">
+        <span class="nav-icon">📋</span> Predefined Configs
+        <span class="nav-badge">{{ predefined_configs | length }}</span>
+    </div>
+    {% endif %}
+</nav>

@@ -1,0 +1,29 @@
+{# _devfile_section_events.html — lifecycle event bindings #}
+<div class="section" id="section-events">
+    <div class="section-header">
+        <h2>// events</h2>
+        <p>Bind commands to devworkspace lifecycle events. Commands are referenced by their ID — define them first in
+            the <strong>Commands</strong> section.</p>
+    </div>
+
+    {% set event_types = [
+    {"key": "preStart", "label": "preStart", "desc": "Executed as init containers before the workspace starts. Useful
+    for setup tasks like pulling dependencies or initialising secrets."},
+    {"key": "postStart", "label": "postStart", "desc": "Executed after the workspace and all plugins have fully started.
+    Typical use: clone projects, run initial builds."},
+    {"key": "preStop", "label": "preStop", "desc": "Executed before the workspace stops. Useful for saving state or
+    graceful shutdown tasks."},
+    {"key": "postStop", "label": "postStop", "desc": "Executed after the workspace has stopped."}
+    ] %}
+
+    {% for event in event_types %}
+    <div class="card {% if not loop.first %}mt-16{% endif %}">
+        <div class="card-header" style="margin-bottom:12px">
+            <span class="card-title"><code
+                    style="font-family:var(--mono);font-size:12px">{{ event.label }}</code></span>
+        </div>
+        <p style="font-size:12px;color:var(--text-dim);margin-bottom:14px;line-height:1.6">{{ event.desc }}</p>
+        <div id="event-{{ event.key }}-commands"></div>
+    </div>
+    {% endfor %}
+</div>

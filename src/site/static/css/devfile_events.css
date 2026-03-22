@@ -1,0 +1,45 @@
+/* devfile_events.css — events section */
+
+.event-command-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    user-select: none;
+    margin-bottom: 6px;
+}
+
+.event-command-row:last-child {
+    margin-bottom: 0;
+}
+
+.event-command-row:hover {
+    border-color: var(--border-bright);
+    background: var(--surface3);
+}
+
+.event-command-row:has(.event-cmd-check:checked) {
+    border-color: var(--accent);
+    background: rgba(79, 156, 249, 0.06);
+}
+
+.event-cmd-check {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.event-cmd-id {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    flex: 1;
+}

@@ -1,0 +1,70 @@
+/* devfile_sidebar.css — configurator sidebar navigation
+   All rules scoped under .sidebar-nav to avoid colliding with
+   .header-nav rules defined in navbar.css */
+
+.sidebar-nav {
+    border-right: 1px solid var(--border);
+    padding: 28px 0;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.sidebar-nav .nav-section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    padding: 0 20px 8px;
+}
+
+.sidebar-nav .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 20px;
+    font-size: 13px;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: all 0.15s;
+    user-select: none;
+}
+
+.sidebar-nav .nav-item:hover {
+    color: var(--text);
+    background: var(--surface);
+}
+
+.sidebar-nav .nav-item.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: rgba(79, 156, 249, 0.06);
+}
+
+.sidebar-nav .nav-item .nav-icon {
+    font-size: 16px;
+    width: 18px;
+    text-align: center;
+}
+
+.sidebar-nav .nav-badge {
+    margin-left: auto;
+    background: var(--surface3);
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 20px;
+}
+
+.sidebar-nav .nav-item.active .nav-badge {
+    background: rgba(79, 156, 249, 0.2);
+    color: var(--accent);
+}
+
+.sidebar-nav .nav-divider {
+    border-top: 1px solid var(--border);
+    margin: 12px 0;
+}

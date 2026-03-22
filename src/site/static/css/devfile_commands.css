@@ -1,0 +1,37 @@
+/* devfile_commands.css — commands section */
+
+/* Command type badges in block headers */
+.cmd-type-badge {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 3px;
+    border: 1px solid transparent;
+    flex-shrink: 0;
+}
+
+.cmd-type-badge.exec {
+    background: rgba(79, 156, 249, 0.1);
+    color: var(--accent);
+    border-color: rgba(79, 156, 249, 0.25);
+}
+
+.cmd-type-badge.composite {
+    background: rgba(124, 108, 249, 0.1);
+    color: var(--accent2);
+    border-color: rgba(124, 108, 249, 0.25);
+}
+
+.cmd-type-badge.apply {
+    background: rgba(79, 255, 160, 0.08);
+    color: var(--accent3);
+    border-color: rgba(79, 255, 160, 0.2);
+}
+
+/* Component dropdown inside exec/apply command fields */
+.cmd-component-select {
+    width: 100%;
+}
