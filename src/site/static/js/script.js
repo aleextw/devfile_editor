@@ -809,7 +809,9 @@ if (PREDEFINED_COMMANDS.length) {
   const addSelectedBtn = el("add-selected-commands-btn");
 
   selectAllBtn?.addEventListener("click", () => {
-    const checks = document.querySelectorAll(".predefined-command-check");
+    const checks = document.querySelectorAll(
+      "#predefined-commands-card .predefined-command-check",
+    );
     const allChecked = [...checks].every((c) => c.checked);
     checks.forEach((c) => {
       c.checked = !allChecked;
@@ -820,7 +822,9 @@ if (PREDEFINED_COMMANDS.length) {
   document
     .getElementById("predefined-command-list")
     ?.addEventListener("change", () => {
-      const checks = document.querySelectorAll(".predefined-command-check");
+      const checks = document.querySelectorAll(
+        "#predefined-commands-card .predefined-command-check",
+      );
       if (selectAllBtn)
         selectAllBtn.textContent = [...checks].every((c) => c.checked)
           ? "Deselect All"
@@ -828,7 +832,9 @@ if (PREDEFINED_COMMANDS.length) {
     });
 
   addSelectedBtn?.addEventListener("click", () => {
-    const rows = document.querySelectorAll(".predefined-command-row");
+    const rows = document.querySelectorAll(
+      "#predefined-commands-card .predefined-repo-row",
+    );
     let added = 0;
     rows.forEach((row) => {
       const check = row.querySelector(".predefined-command-check");
@@ -843,6 +849,9 @@ if (PREDEFINED_COMMANDS.length) {
       const { display_name, description, ...cmd } = JSON.parse(
         JSON.stringify(predefined),
       );
+      // Derive type from whichever sub-object is present (predefined JSON omits the UI-only type field)
+      if (!cmd.type)
+        cmd.type = cmd.exec ? "exec" : cmd.composite ? "composite" : "apply";
       // Default the component to the currently configured container name
       if (cmd.exec && !cmd.exec.component)
         cmd.exec.component = state.resources.name || "dev";
