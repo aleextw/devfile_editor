@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field, BeforeValidator
 from typing import Annotated, Any
 
-from app.utils.helpers import _parse_json_list
+from app.util.devfile import _parse_json_list
 
 
 class PredefinedRepo(BaseModel):

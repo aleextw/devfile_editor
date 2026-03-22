@@ -2,8 +2,8 @@ from litestar import Litestar
 from litestar.contrib.jinja import JinjaTemplateEngine
 from litestar.template.config import TemplateConfig
 from litestar.static_files import StaticFilesConfig
-from src.app.core.config import settings
-from src.app.controller.devfile import DevfileController
+from app.core.config import settings
+from app.controller.devfile import DevfileController
 
 app = Litestar(
     route_handlers=[DevfileController],

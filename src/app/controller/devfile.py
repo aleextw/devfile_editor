@@ -5,8 +5,8 @@ import yaml
 from litestar import Controller, Request, get
 from litestar.response import Redirect, Response, Template
 
-from src.app.core.config import settings
-from src.app.util.devfile import _decode_blob
+from app.core.config import settings
+from app.util.devfile import _decode_blob
 from app.service.devfile import _generate_devfile_data
 
 
