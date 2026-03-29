@@ -1,0 +1,36 @@
+{% macro render(cmd) %}
+<div>
+    <div class="field-row cols-2">
+        <div class="field-group">
+            <label class="field-label">Sub-commands (comma-separated)</label>
+            <input type="text" placeholder="build, run" :value="(cmd.composite.commands || []).join(', ')" @input="cmd.composite.commands = $event.target.value
+                           .split(',').map(s => s.trim()).filter(Boolean)">
+            <p class="field-hint">IDs of other commands to run in sequence.</p>
+        </div>
+        <div class="field-group">
+            <label class="field-label">Group</label>
+            <select x-model="cmd.composite.group.kind">
+                <template x-for="k in ['build','run','test','debug','deploy']" :key="k">
+                    <option :value="k" x-text="k"></option>
+                </template>
+            </select>
+        </div>
+    </div>
+    <div class="field-row cols-2 mt-8">
+        <div class="field-group">
+            <label class="field-label">Label</label>
+            <input type="text" placeholder="optional display label" x-model="cmd.composite.label">
+        </div>
+        <div class="field-group" style="justify-content:flex-end;padding-top:20px">
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+                <input type="checkbox" x-model="cmd.composite.parallel">
+                Run in parallel
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin-top:8px">
+                <input type="checkbox" x-model="cmd.composite.group.isDefault">
+                Default for group
+            </label>
+        </div>
+    </div>
+</div>
+{% endmacro %}

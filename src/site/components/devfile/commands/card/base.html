@@ -1,0 +1,59 @@
+{% import 'components/devfile/commands/card/exec.html' as exec_card %}
+{% import 'components/devfile/commands/card/composite.html' as composite_card %}
+{% import 'components/devfile/commands/card/apply.html' as apply_card %}
+
+{% macro render(cmd, idx) %}
+<div class="component-block" style="margin-bottom:8px" x-data="{ collapsed: false }">
+
+    <!-- Header -->
+    <div class="component-block-header" @click="collapsed = !collapsed">
+        <span class="cmd-type-badge" :class="cmd.type" x-text="cmd.type"></span>
+        <span style="font-size:13px;font-weight:600;margin-left:4px" x-text="cmd.id || '(unnamed)'"></span>
+        <span class="collapse-icon" style="margin-left:auto"
+            :style="collapsed ? 'transform:rotate(-90deg)' : ''">▾</span>
+    </div>
+
+    <!-- Body -->
+    <div class="component-block-body" x-show="!collapsed">
+
+        <!-- ID + Type -->
+        <div class="field-row cols-2">
+            <div class="field-group">
+                <label class="field-label">
+                    ID <span style="color:var(--warn)">*</span>
+                </label>
+                <input type="text" placeholder="my-command" x-model="cmd.id">
+                <p class="field-hint">^[a-z0-9]([-a-z0-9]*[a-z0-9])?$, max 63 chars</p>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Type</label>
+                <select :value="cmd.type" @change="$store.devfile.changeCommandType(i, $event.target.value)">
+                    <option value="exec">exec</option>
+                    <option value="composite">composite</option>
+                    <option value="apply">apply</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- exec fields -->
+        <template x-if="cmd.type === 'exec' && cmd.exec">
+            {{ exec_card.render(cmd) }}
+        </template>
+
+        <!-- composite fields -->
+        <template x-if="cmd.type === 'composite' && cmd.composite">
+            {{ composite_card.render(cmd) }}
+        </template>
+
+        <!-- apply fields -->
+        <template x-if="cmd.type === 'apply' && cmd.apply">
+            {{ apply_card.render(cmd) }}
+        </template>
+
+        <!-- Remove button -->
+        <div style="margin-top:12px;text-align:right">
+            <button class="btn btn-danger btn-sm" @click="$store.devfile.removeCommand(i)">✕ Remove</button>
+        </div>
+    </div><!-- /body -->
+</div><!-- /component-block -->
+{% endmacro %}

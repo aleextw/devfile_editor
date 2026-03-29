@@ -1,0 +1,75 @@
+{# _devfile_section_components.html — container component + devfile fragments #}
+{% import 'components/devfile/components/container.html' as container %}
+{% import 'components/devfile/components/cpu.html' as cpu %}
+{% import 'components/devfile/components/memory.html' as memory %}
+{% import 'components/devfile/components/endpoints.html' as endpoints %}
+{% import 'components/devfile/components/environment_variables.html' as environment_variables %}
+{% import 'components/devfile/components/volumes.html' as volumes %}{% import 'components/devfile/components/volumes.html' as volumes %}
+{% import 'components/devfile/components/fragment_catalog.html' as fragment_catalog %}
+{% import 'components/devfile/components/fragments/main.html' as fragments %}
+
+<div class="section" id="section-components" x-data="{
+    cpuSteps: ['','100m','200m','300m','500m','750m','1','1500m','2','3','4','5','6','7','8','10','12','16','20','24','32'],
+    memSteps: ['','128Mi','256Mi','384Mi','512Mi','768Mi','1Gi','1536Mi','2Gi','3Gi','4Gi','6Gi','8Gi','10Gi','12Gi','16Gi','20Gi','24Gi','32Gi','48Gi','64Gi'],
+    cpuReqIdx: 0, cpuLimIdx: 0, memReqIdx: 0, memLimIdx: 0,
+    init() {
+      // Sync slider thumb positions from store on mount and on every store change.
+      this.$watch(
+        () => {
+          const ct = Alpine.store('devfile').container;
+          return [ct.cpuRequest, ct.cpuLimit, ct.memoryRequest, ct.memoryLimit].join('|');
+        },
+        () => this._syncSliders()
+      );
+      this._syncSliders();
+    },
+    _syncSliders() {
+      const ct = Alpine.store('devfile').container;
+      this.cpuReqIdx = this._idx(this.cpuSteps, ct.cpuRequest,   4);
+      this.cpuLimIdx = this._idx(this.cpuSteps, ct.cpuLimit,     8);
+      this.memReqIdx = this._idx(this.memSteps, ct.memoryRequest, 4);
+      this.memLimIdx = this._idx(this.memSteps, ct.memoryLimit,  10);
+    },
+    _idx(steps, val, fallback) {
+      if (!val) return 0;
+      const i = steps.indexOf(val);
+      return i >= 0 ? i : fallback;
+    },
+    onCpuReqSlider(i) { $store.devfile.setContainerField('cpuRequest',    this.cpuSteps[i] || ''); },
+    onCpuLimSlider(i) { $store.devfile.setContainerField('cpuLimit',      this.cpuSteps[i] || ''); },
+    onMemReqSlider(i) { $store.devfile.setContainerField('memoryRequest', this.memSteps[i] || ''); },
+    onMemLimSlider(i) { $store.devfile.setContainerField('memoryLimit',   this.memSteps[i] || ''); },
+  }" x-show="$store.ui.activeSection === 'components'">
+  <div class="section-header">
+    <h2>// components</h2>
+    <p>
+      Configure the main container component, then add devfile fragments — each fragment
+      is a partial devfile that is merged into the base on export. Fragments can contribute
+      additional <code style="font-family:var(--mono);font-size:11px">components</code>,
+      <code style="font-family:var(--mono);font-size:11px">commands</code>,
+      <code style="font-family:var(--mono);font-size:11px">events</code>,
+      <code style="font-family:var(--mono);font-size:11px">variables</code>, and more.
+    </p>
+  </div>
+
+  {{ container.render() }}
+
+  {{ cpu.render() }}
+
+  {{ memory.render() }}
+
+  {{ endpoints.render() }}
+
+  {{ environment_variables.render() }}
+
+  {{ volumes.render() }}
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       DEVFILE FRAGMENTS
+       Each fragment is a partial devfile merged into the base on export.
+  ══════════════════════════════════════════════════════════════════════════ -->
+  {{ fragment_catalog.render() }}
+
+  {{ fragments.render() }}
+
+</div>

@@ -1,0 +1,46 @@
+{% macro render(cmd) %}
+<div>
+    <div class="field-row cols-2">
+        <div class="field-group">
+            <label class="field-label">
+                Command Line <span style="color:var(--warn)">*</span>
+            </label>
+            <textarea placeholder="npm run build" rows="3" style="resize:vertical"
+                x-model="cmd.exec.commandLine"></textarea>
+        </div>
+        <div class="field-group">
+            <label class="field-label">Working Dir</label>
+            <input type="text" placeholder="$PROJECT_SOURCE" x-model="cmd.exec.workingDir">
+        </div>
+    </div>
+    <div class="field-row cols-2 mt-8">
+        <div class="field-group">
+            <label class="field-label">
+                Component <span style="color:var(--warn)">*</span>
+            </label>
+            <input type="text" placeholder="dev" x-model="cmd.exec.component">
+            <p class="field-hint">Container component to run this command in.</p>
+        </div>
+        <div class="field-group">
+            <label class="field-label">Group</label>
+            <select x-model="cmd.exec.group.kind">
+                <template x-for="k in ['build','run','test','debug','deploy']" :key="k">
+                    <option :value="k" x-text="k"></option>
+                </template>
+            </select>
+        </div>
+    </div>
+    <div class="field-row cols-2 mt-8">
+        <div class="field-group">
+            <label class="field-label">Label</label>
+            <input type="text" placeholder="optional display label" x-model="cmd.exec.label">
+        </div>
+        <div class="field-group" style="justify-content:flex-end;padding-top:20px">
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+                <input type="checkbox" x-model="cmd.exec.group.isDefault">
+                Default for group
+            </label>
+        </div>
+    </div>
+</div>
+{% endmacro %}

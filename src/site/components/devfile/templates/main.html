@@ -1,0 +1,69 @@
+{# _devfile_section_templates.html — predefined devfile configuration templates #}
+{% if predefined_configs %}
+<div
+  class="section"
+  id="section-templates"
+  x-data
+  x-show="$store.ui.activeSection === 'templates'"
+>
+  <div class="section-header">
+    <h2>// predefined configs</h2>
+    <p>
+      Ready-made devfile configurations. Click <strong>Load</strong> on any template to open it
+      in the configurator — your current configuration will be replaced.
+    </p>
+  </div>
+
+  <div id="template-list">
+    {% for config in predefined_configs %}
+    <div class="template-card card" x-data="{ expanded: false, copyLabel: '⎘ Copy Raw URL' }">
+      <div class="template-card-header">
+        <div class="template-card-title-group">
+          <span class="template-card-name">{{ config.name }}</span>
+          {% if config.description %}
+          <span class="template-card-desc">{{ config.description }}</span>
+          {% endif %}
+        </div>
+        <div class="flex-gap">
+          <a
+            href="/devfile#c={{ config.blob }}"
+            class="btn btn-primary btn-sm"
+            @click.prevent="
+              location.hash = 'c={{ config.blob }}';
+              $store.ui.setSection('repositories');
+            "
+          >Load</a>
+          <button
+            class="btn btn-ghost btn-sm template-expand-btn"
+            :aria-expanded="expanded"
+            @click="expanded = !expanded"
+            x-text="expanded ? '▴ Hide' : '▾ Preview'"
+          ></button>
+        </div>
+      </div>
+
+      <div class="template-card-body" x-show="expanded" x-cloak>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <span class="card-title">YAML Preview</span>
+          <div class="flex-gap">
+            <input type="text" readonly
+                   value="{{ base_url }}/raw?c={{ config.blob }}"
+                   class="template-raw-url"
+                   style="width:320px;font-size:11px;color:var(--accent3)">
+            <button
+              class="btn btn-ghost btn-sm"
+              @click="
+                navigator.clipboard.writeText('{{ base_url }}/raw?c={{ config.blob }}')
+                  .then(() => { copyLabel = '✔ Copied!'; setTimeout(() => copyLabel = '⎘ Copy Raw URL', 1800); })
+              "
+              x-text="copyLabel"
+            ></button>
+          </div>
+        </div>
+        <div class="code-block" style="max-height:320px;">{{ config.yaml_preview | e }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}

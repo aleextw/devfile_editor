@@ -1,0 +1,37 @@
+{% macro render() %}
+<!-- ═══ Memory ═══════════════════════════════════════════════════════════ -->
+<div class="card mt-16">
+  <div class="card-header"><span class="card-title">Memory Limits</span></div>
+  <div class="resource-grid">
+    <div class="resource-block">
+      <div class="resource-label-row">
+        <label class="field-label" style="margin:0">Memory Request</label>
+        <span class="resource-val" x-text="$store.devfile.container.memoryRequest || '—'"></span>
+      </div>
+      <input type="range" min="0" :max="memSteps.length-1" x-model.number="memReqIdx"
+        @input="onMemReqSlider(memReqIdx)">
+      <div class="resource-ticks">
+        <span>128Mi</span><span>512Mi</span><span>1Gi</span><span>4Gi</span><span>16Gi+</span>
+      </div>
+    </div>
+    <div class="resource-block">
+      <div class="resource-label-row">
+        <label class="field-label" style="margin:0">Memory Limit</label>
+        <span class="resource-val" x-text="$store.devfile.container.memoryLimit || '—'"></span>
+      </div>
+      <input type="range" min="0" :max="memSteps.length-1" x-model.number="memLimIdx"
+        @input="onMemLimSlider(memLimIdx)">
+      <div class="resource-ticks">
+        <span>128Mi</span><span>512Mi</span><span>1Gi</span><span>4Gi</span><span>16Gi+</span>
+      </div>
+    </div>
+  </div>
+  <p class="field-hint mt-8">Or override manually:</p>
+  <div class="field-row cols-2 mt-8">
+    <input type="text" placeholder="e.g. 512Mi or 1Gi" :value="$store.devfile.container.memoryRequest"
+      @input="$store.devfile.setContainerField('memoryRequest', $event.target.value)">
+    <input type="text" placeholder="e.g. 4Gi or 8192Mi" :value="$store.devfile.container.memoryLimit"
+      @input="$store.devfile.setContainerField('memoryLimit', $event.target.value)">
+  </div>
+</div>
+{% endmacro %}

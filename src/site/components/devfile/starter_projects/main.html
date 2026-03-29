@@ -1,0 +1,55 @@
+{# _devfile_section_starter_projects.html — starterProjects #}
+<div
+  class="section"
+  id="section-starterprojects"
+  x-data
+  x-show="$store.ui.activeSection === 'starterprojects'"
+>
+  <div class="section-header">
+    <h2>// starter projects</h2>
+    <p>
+      Template repositories users can clone when creating a new workspace from this devfile.
+      Unlike <code style="font-family:var(--mono);font-size:11px">projects</code>, starter
+      projects are not automatically cloned — they are offered as bootstrap options.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Starter Projects</span>
+      <button class="btn btn-secondary btn-sm"
+              @click="$store.devfile.addStarterProject()">+ Add Starter</button>
+    </div>
+
+    <div class="repo-list">
+      <template x-for="(sp, i) in $store.devfile.starterProjects" :key="i">
+        <div class="repo-entry" style="grid-template-columns:1fr 2fr 120px auto">
+          <div class="field-group">
+            <label class="field-label">Name</label>
+            <input type="text" placeholder="my-starter" x-model="sp.name">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Remote URL</label>
+            <input type="text" placeholder="https://github.com/org/starter"
+                   x-model="sp.git.remotes.origin">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Branch / Revision</label>
+            <input type="text" placeholder="main"
+                   :value="sp.git.checkoutFrom?.revision ?? 'main'"
+                   @input="sp.git.checkoutFrom = { revision: $event.target.value }">
+          </div>
+          <div class="remove-btn">
+            <button class="btn btn-danger btn-sm"
+                    @click="$store.devfile.removeStarterProject(i)">✕</button>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <div x-show="$store.devfile.starterProjects.length === 0"
+         style="color:var(--text-faint);font-size:13px;text-align:center;padding:24px 0">
+      No starter projects defined. Optional.
+    </div>
+  </div>
+</div>

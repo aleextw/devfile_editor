@@ -1,0 +1,47 @@
+{% import 'components/devfile/components/fragments/card/main.html' as
+fragment_card %} {% macro render() %}
+<!-- Fragment list -->
+<div class="card mt-16">
+  <div class="card-header">
+    <span class="card-title">Devfile Fragments</span>
+    <button
+      class="btn btn-secondary btn-sm"
+      @click="$store.devfile.addFragment()"
+    >
+      + Add Fragment
+    </button>
+  </div>
+
+  <p
+    style="
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 14px;
+      line-height: 1.6;
+    "
+    x-show="$store.devfile.fragments.length > 0"
+  >
+    Fragments are merged into the base devfile in order. Drag to reorder using
+    the ↑↓ buttons.
+  </p>
+
+  <template x-for="(frag, fi) in $store.devfile.fragments" :key="frag.id">
+    {{ fragment_card.render(frag, fi) }}
+  </template>
+
+  <div
+    x-show="$store.devfile.fragments.length === 0"
+    style="
+      color: var(--text-faint);
+      font-size: 13px;
+      text-align: center;
+      padding: 24px 0;
+    "
+  >
+    No fragments defined. Click
+    <strong style="color: var(--text-dim)">+ Add Fragment</strong>
+    to create one{% if component_catalog %}, or pick a preset from the catalog
+    above{% endif %}.
+  </div>
+</div>
+{% endmacro %}

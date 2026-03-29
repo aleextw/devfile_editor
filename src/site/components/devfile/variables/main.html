@@ -1,0 +1,78 @@
+{# _devfile_section_variables.html — top-level devfile variables #}
+<div
+  class="section"
+  id="section-variables"
+  x-data="{
+    newKey: '',
+    newVal: '',
+    add() {
+      const k = this.newKey.trim();
+      if (!k) return;
+      $store.devfile.variables[k] = this.newVal;
+      // Reassign to trigger Alpine reactivity on the object
+      $store.devfile.variables = { ...$store.devfile.variables };
+      this.newKey = '';
+      this.newVal = '';
+    },
+    remove(key) {
+      const v = { ...$store.devfile.variables };
+      delete v[key];
+      $store.devfile.variables = v;
+    },
+    update(key, value) {
+      $store.devfile.variables[key] = value;
+      $store.devfile.variables = { ...$store.devfile.variables };
+    },
+  }"
+  x-show="$store.ui.activeSection === 'variables'"
+>
+  <div class="section-header">
+    <h2>// variables</h2>
+    <p>
+      Define string variables that can be referenced elsewhere in the devfile using
+      <code style="font-family:var(--mono);font-size:11px">{{"{{"}}VAR_NAME{{"}}"}}</code> syntax.
+      Variables are substituted at workspace startup time.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Variables</span></div>
+
+    <!-- Existing variables -->
+    <template x-for="[key, val] in Object.entries($store.devfile.variables)" :key="key">
+      <div class="kv-row" style="margin-bottom:8px">
+        <input type="text" placeholder="VARIABLE_NAME"
+               :value="key"
+               readonly
+               style="font-family:var(--mono);color:var(--accent)">
+        <input type="text" placeholder="value"
+               :value="val"
+               @input="update(key, $event.target.value)">
+        <button class="btn btn-danger btn-sm" @click="remove(key)">✕</button>
+      </div>
+    </template>
+
+    <div x-show="Object.keys($store.devfile.variables).length === 0"
+         style="color:var(--text-faint);font-size:13px;text-align:center;padding:16px 0">
+      No variables defined.
+    </div>
+
+    <!-- Add new variable -->
+    <div class="separator"></div>
+    <div class="kv-row">
+      <input type="text" placeholder="VARIABLE_NAME"
+             x-model="newKey"
+             @keydown.enter.prevent="add()"
+             style="font-family:var(--mono)">
+      <input type="text" placeholder="value"
+             x-model="newVal"
+             @keydown.enter.prevent="add()">
+      <button class="btn btn-secondary btn-sm" @click="add()">+ Add</button>
+    </div>
+    <p class="field-hint mt-8">
+      Variable names should be uppercase. Reference them as
+      <code style="font-family:var(--mono);font-size:11px">{{"{{"}}NAME{{"}}"}}</code>
+      in command lines, image names, and other string fields.
+    </p>
+  </div>
+</div>

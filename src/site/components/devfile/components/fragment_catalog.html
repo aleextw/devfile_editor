@@ -1,0 +1,21 @@
+{% macro render() %}
+<!-- Catalog preset picker (only shown if catalog is configured) -->
+<div class="card mt-16" x-show="window._devfileStore.CATALOG.length > 0">
+  <div class="card-header" style="margin-bottom:12px">
+    <span class="card-title">Fragment Catalog</span>
+  </div>
+  <p style="font-size:12px;color:var(--text-dim);margin-bottom:14px;line-height:1.6">
+    Click a catalog preset to add it as a fragment. Each preset is a partial devfile
+    that will be merged into the base on export.
+  </p>
+  <div class="component-catalog">
+    <template x-for="item in window._devfileStore.CATALOG" :key="item.id">
+      <div class="catalog-item" @click="$store.devfile.addFragmentFromCatalog(item.id)">
+        <div class="catalog-icon" x-text="item.icon || '🧩'"></div>
+        <div class="catalog-name" x-text="item.name"></div>
+        <div class="catalog-desc" x-text="item.description || ''"></div>
+      </div>
+    </template>
+  </div>
+</div>
+{% endmacro %}

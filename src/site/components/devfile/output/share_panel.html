@@ -1,0 +1,71 @@
+{% macro render() %}
+<div class="card mb-16" x-show="$store.ui.sharePanelVisible">
+  <div class="card-header" style="margin-bottom: 10px">
+    <span class="card-title">🔗 Share Link</span>
+    <span class="tag green" x-text="$store.ui.shareSizeTag"></span>
+  </div>
+  <p
+    style="
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 10px;
+      line-height: 1.6;
+    "
+  >
+    This URL encodes your entire configuration as a compressed hash. Anyone
+    opening it will have the full configuration loaded automatically. The
+    <code
+      style="font-family: var(--mono); font-size: 11px; color: var(--accent)"
+      >/raw</code
+    >
+    URL is served by the backend with
+    <code
+      style="font-family: var(--mono); font-size: 11px; color: var(--accent)"
+      >Content-Type: text/yaml</code
+    >
+    — point your devworkspace operator directly at it.
+  </p>
+  <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px">
+    <input
+      type="text"
+      readonly
+      style="
+        flex: 1;
+        font-size: 11px;
+        color: var(--accent);
+        background: var(--surface2);
+      "
+      :value="$store.ui.shareUrl"
+    />
+    <button
+      class="btn btn-secondary btn-sm"
+      @click="copyUrl('shareUrl', 'copyShareLabel')"
+      x-text="copyShareLabel"
+    ></button>
+  </div>
+  <div style="display: flex; gap: 8px; align-items: center">
+    <input
+      type="text"
+      readonly
+      style="
+        flex: 1;
+        font-size: 11px;
+        color: var(--accent3);
+        background: var(--surface2);
+      "
+      :value="$store.ui.rawUrl"
+    />
+    <button
+      class="btn btn-ghost btn-sm"
+      @click="copyUrl('rawUrl', 'copyRawLabel')"
+      x-text="copyRawLabel"
+    ></button>
+  </div>
+  <p class="field-hint mt-8">
+    Raw URL is served by the backend with
+    <code style="font-size: 10px; font-family: var(--mono)"
+      >Content-Type: text/yaml</code
+    >. Fetchable by any HTTP client.
+  </p>
+</div>
+{% endmacro %}

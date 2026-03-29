@@ -23,7 +23,7 @@ from app.model.devfile import (
     PredefinedCommand,
     PredefinedRepo,
     PredefinedConfig,
-    ComponentCatalogItem,
+    CatalogFragment,
     JsonStrList,
 )
 from app.util.devfile import _encode_blob, _devfile_to_state
@@ -35,50 +35,11 @@ class Settings(BaseSettings):
     """
     All application configuration, loaded from environment variables or a
     .env file in the working directory.
-
-    Every field maps to a correspondingly named environment variable
-    (case-insensitive). Pydantic-settings reads them in this priority order:
-        1. Real environment variables
-        2. .env file (path set by ``model_config``)
-        3. Field default
-
-    Chat UI
-    -------
-    chat_team_name:
-        Displayed as "<team_name> Assistant" in the header and empty state.
-        Also used as the HTML page <title>.
-    chat_logo_text:
-        Short string (2–4 chars) shown in the logo mark and message avatars.
-    chat_tagline:
-        Subtitle shown under the title in the header and on the empty state.
-    chat_welcome_message:
-        Body copy shown before the user sends their first message.
-    chat_input_placeholder:
-        Placeholder text inside the chat textarea.
-    chat_suggestions:
-        JSON array of suggestion chips shown on the empty state.
-        Example env value: '["Tell me about X", "How do I Y"]'
-
-    Devfile Configurator
-    --------------------
-    devfile_predefined_repos_file:
-        Path to a JSON file containing the predefined repository catalog shown
-        in the devfile configurator picker. See predefined_repos.example.json
-        for the expected structure. If unset or the file doesn't exist, no
-        predefined repos are shown and only manual URL entry is available.
-
-    Paths
-    -----
-    base_dir:
-        Root directory containing the Jinja2 templates (chat.html, index.html,
-        _navbar.html) and the static/ subdirectory.
-        Defaults to the directory containing this config.py file.
     """
 
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
-        # Allow extra env vars to be present without raising an error
         extra="ignore",
     )
 
@@ -121,8 +82,7 @@ class Settings(BaseSettings):
         ],
         description=(
             "Suggestion chips shown on the empty state. "
-            "Set as a JSON array string in the environment: "
-            'CHAT_SUGGESTIONS=\'["Option A","Option B"]\''
+            "Set as a JSON array string in the environment."
         ),
     )
 
@@ -132,20 +92,14 @@ class Settings(BaseSettings):
         default=None,
         description=(
             "Path to a JSON file containing the predefined repositories shown "
-            "in the devfile configurator picker. The file must be a JSON array "
-            "of objects — see predefined_repos.example.json for the schema. "
-            "Relative paths are resolved from the working directory. "
-            "If unset or the file is absent, no predefined repos are shown."
+            "in the devfile configurator picker."
         ),
     )
 
     devfile_predefined_configs_dir: Path | None = Field(
         default=None,
         description=(
-            "Path to a directory containing predefined devfile YAML configurations. "
-            "Each .yaml / .yml file in the directory is parsed at startup, converted "
-            "to a frontend state blob, and shown as a selectable template in the "
-            "configurator sidebar. Relative paths are resolved from the working directory."
+            "Path to a directory containing predefined devfile YAML configurations."
         ),
     )
 
@@ -153,20 +107,17 @@ class Settings(BaseSettings):
         default=None,
         description=(
             "Path to a JSON file containing the predefined commands shown in the "
-            "devfile configurator Commands section picker. The file must be a JSON "
-            "array of command objects — see predefined_commands.example.json for the "
-            "schema. Relative paths are resolved from the working directory."
+            "devfile configurator Commands section picker."
         ),
     )
 
     devfile_component_catalog_file: Path | None = Field(
         default=None,
         description=(
-            "Path to a JSON file defining the component catalog shown in the "
-            "devfile configurator Components section. Each entry describes a bundle "
-            "that can be selected to inject env vars, volumes, and endpoints into "
-            "the devfile. See component_catalog.example.json for the schema. "
-            "If unset, no component catalog is shown."
+            "Path to a JSON file defining the fragment catalog shown in the "
+            "devfile configurator Components section. Each entry is a partial "
+            "devfile fragment preset: { id, name, icon, description, devfile: {...} }. "
+            "See component_catalog.example.json for the schema."
         ),
     )
 
@@ -175,8 +126,7 @@ class Settings(BaseSettings):
     base_dir: Path = Field(
         default=Path.cwd(),
         description=(
-            "Root directory containing templates and the static/ subdirectory. "
-            "Defaults to the directory containing config.py."
+            "Root directory containing templates and the static/ subdirectory."
         ),
     )
 
@@ -184,24 +134,14 @@ class Settings(BaseSettings):
 
     @property
     def static_dir(self) -> Path:
-        """Absolute path to the static assets directory."""
         return self.base_dir / "src" / "site" / "static"
 
     @property
     def template_dir(self) -> Path:
-        """Absolute path to the Jinja2 templates directory (same as base_dir)."""
         return self.base_dir / "src" / "site"
 
     @property
     def devfile_predefined_repos(self) -> list[PredefinedRepo]:
-        """
-        Load and return the predefined repositories from the JSON file
-        referenced by ``devfile_predefined_repos_file``.
-
-        Returns an empty list if the field is unset, the file does not exist,
-        or the file cannot be parsed — errors are logged as warnings rather
-        than crashing the application at startup.
-        """
         if self.devfile_predefined_repos_file is None:
             return []
         path = self.devfile_predefined_repos_file
@@ -221,13 +161,6 @@ class Settings(BaseSettings):
 
     @property
     def devfile_predefined_commands(self) -> list[PredefinedCommand]:
-        """
-        Load and return the predefined commands from the JSON file referenced
-        by ``devfile_predefined_commands_file``.
-
-        Returns an empty list if the field is unset, the file does not exist,
-        or the file cannot be parsed.
-        """
         if self.devfile_predefined_commands_file is None:
             return []
         path = self.devfile_predefined_commands_file
@@ -247,10 +180,18 @@ class Settings(BaseSettings):
             return []
 
     @property
-    def devfile_component_catalog(self) -> list[ComponentCatalogItem]:
+    def devfile_component_catalog(self) -> list[CatalogFragment]:
         """
-        Load and return the component catalog from the JSON file referenced
-        by ``devfile_component_catalog_file``.
+        Load the fragment catalog from the JSON file at
+        ``devfile_component_catalog_file``.
+
+        Each entry must be a CatalogFragment:
+          { id, name, icon?, description?, devfile: { ... } }
+
+        The ``devfile`` field is a partial devfile fragment that is merged into
+        the base devfile on export.  It may contain any combination of
+        ``components``, ``commands``, ``events``, ``variables``, ``attributes``,
+        ``projects``, and ``starterProjects``.
 
         Returns an empty list if the field is unset, the file does not exist,
         or the file cannot be parsed.
@@ -262,26 +203,19 @@ class Settings(BaseSettings):
             path = Path.cwd() / path
         if not path.exists():
             logger.warning(
-                "DEVFILE_COMPONENT_CATALOG_FILE points to a non-existent file: %s", path
+                "DEVFILE_COMPONENT_CATALOG_FILE points to a non-existent file: %s",
+                path,
             )
             return []
         try:
             raw = json.loads(path.read_text(encoding="utf-8"))
-            return [ComponentCatalogItem.model_validate(item) for item in raw]
+            return [CatalogFragment.model_validate(item) for item in raw]
         except Exception as exc:
             logger.warning("Failed to load component catalog from %s: %s", path, exc)
             return []
 
     @property
     def devfile_predefined_configs(self) -> list[PredefinedConfig]:
-        """
-        Scan ``devfile_predefined_configs_dir`` for .yaml / .yml files, parse
-        each as a devfile, convert to frontend state, and return a list of
-        ``PredefinedConfig`` objects sorted alphabetically by name.
-
-        Files that cannot be parsed are skipped with a warning. Returns an
-        empty list if the directory is unset or does not exist.
-        """
         if self.devfile_predefined_configs_dir is None:
             return []
 
@@ -300,8 +234,7 @@ class Settings(BaseSettings):
             import yaml  # type: ignore[import]
         except ImportError:
             logger.warning(
-                "PyYAML is not installed — cannot parse predefined devfile configs. "
-                "Install it with: pip install pyyaml"
+                "PyYAML is not installed — cannot parse predefined devfile configs."
             )
             return []
 

@@ -1,0 +1,44 @@
+{% macro render() %}
+<!-- ═══ Endpoints ════════════════════════════════════════════════════════ -->
+<div class="card mt-16">
+  <div class="card-header">
+    <span class="card-title">Endpoints</span>
+    <button class="btn btn-secondary btn-sm" @click="$store.devfile.addEndpoint()">+ Add Endpoint</button>
+  </div>
+  <template x-for="(ep, i) in $store.devfile.endpoints" :key="i">
+    <div class="repo-entry" style="grid-template-columns:1fr 90px 110px 110px auto;margin-bottom:8px">
+      <div class="field-group">
+        <label class="field-label">Name</label>
+        <input type="text" placeholder="http-dev" x-model="ep.name">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Port</label>
+        <input type="number" placeholder="3000" x-model.number="ep.targetPort">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Protocol</label>
+        <select x-model="ep.protocol">
+          <template x-for="p in ['http','https','ws','wss','tcp','udp']" :key="p">
+            <option :value="p" x-text="p"></option>
+          </template>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Exposure</label>
+        <select x-model="ep.exposure">
+          <template x-for="e in ['public','internal','none']" :key="e">
+            <option :value="e" x-text="e"></option>
+          </template>
+        </select>
+      </div>
+      <div class="remove-btn">
+        <button class="btn btn-danger btn-sm" @click="$store.devfile.removeEndpoint(i)">✕</button>
+      </div>
+    </div>
+  </template>
+  <div x-show="$store.devfile.endpoints.length === 0"
+    style="color:var(--text-faint);font-size:13px;text-align:center;padding:16px 0">
+    No endpoints defined.
+  </div>
+</div>
+{% endmacro %}

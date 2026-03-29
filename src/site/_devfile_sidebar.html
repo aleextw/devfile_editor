@@ -1,40 +1,86 @@
-{# _devfile_sidebar.html — sidebar navigation for the devfile configurator #}
-<nav class="sidebar-nav">
-    <div class="nav-section-label">Configure</div>
-    <div class="nav-item active" data-section="repositories">
-        <span class="nav-icon">📦</span> Repositories
-        <span class="nav-badge" id="repo-badge">0</span>
-    </div>
-    <div class="nav-item" data-section="resources">
-        <span class="nav-icon">⚙️</span> Resources
-    </div>
-    <div class="nav-item" data-section="components">
-        <span class="nav-icon">🧩</span> Components
-        <span class="nav-badge" id="comp-badge">0</span>
-    </div>
-    <div class="nav-item" data-section="commands">
-        <span class="nav-icon">⚡</span> Commands
-        <span class="nav-badge" id="commands-badge">0</span>
-    </div>
-    <div class="nav-item" data-section="events">
-        <span class="nav-icon">🔔</span> Events
-    </div>
-    <div class="nav-divider"></div>
-    <div class="nav-section-label">Output</div>
-    <div class="nav-item" data-section="output">
-        <span class="nav-icon">📄</span> Export YAML
-    </div>
-    <div class="nav-divider"></div>
-    <div class="nav-section-label">Import</div>
-    <div class="nav-item" data-section="import">
-        <span class="nav-icon">⬆</span> Import &amp; Validate
-    </div>
-    {% if predefined_configs %}
-    <div class="nav-divider"></div>
-    <div class="nav-section-label">Templates</div>
-    <div class="nav-item" data-section="templates">
-        <span class="nav-icon">📋</span> Predefined Configs
-        <span class="nav-badge">{{ predefined_configs | length }}</span>
-    </div>
-    {% endif %}
+{# _devfile_sidebar.html — sidebar navigation, one tab per devfile top-level field #}
+<nav class="sidebar-nav" x-data>
+  <div class="nav-section-label">Devfile Schema</div>
+  
+   <div class="nav-divider"></div>
+   <div class="nav-section-label">Import</div>
+   {% if predefined_configs %}
+   <div class="nav-item" :class="{ active: $store.ui.activeSection === 'templates' }"
+      @click="$store.ui.setSection('templates')">
+      <span class="nav-icon">📋</span> Predefined Configs
+      <span class="nav-badge">{{ predefined_configs | length }}</span>
+   </div>
+   {% endif %}
+   <div class="nav-item" :class="{ active: $store.ui.activeSection === 'import' }" @click="$store.ui.setSection('import')">
+      <span class="nav-icon">⬆</span> Import &amp; Validate
+   </div>
+   <div class="nav-divider"></div>
+
+  <div class="nav-item"
+       :class="{ active: $store.ui.activeSection === 'metadata' }"
+       @click="$store.ui.setSection('metadata')">
+    <span class="nav-icon">🏷️</span> Metadata
+  </div>
+
+  <div class="nav-item"
+       :class="{ active: $store.ui.activeSection === 'variables' }"
+       @click="$store.ui.setSection('variables')">
+    <span class="nav-icon">🔣</span> Variables
+    <span class="nav-badge"
+          x-text="Object.keys($store.devfile.variables).length"></span>
+  </div>
+
+  <div class="nav-item"
+       :class="{ active: $store.ui.activeSection === 'attributes' }"
+       @click="$store.ui.setSection('attributes')">
+    <span class="nav-icon">📎</span> Attributes
+    <span class="nav-badge"
+          x-text="Object.keys($store.devfile.attributes).length"></span>
+  </div>
+
+  <div class="nav-item"
+       :class="{ active: $store.ui.activeSection === 'components' }"
+       @click="$store.ui.setSection('components')">
+    <span class="nav-icon">🧩</span> Components
+    <span class="nav-badge"
+          x-text="1 + $store.devfile.volumes.length + $store.devfile.fragments.length"></span>
+  </div>
+
+  <div class="nav-item"
+       :class="{ active: $store.ui.activeSection === 'projects' }"
+       @click="$store.ui.setSection('projects')">
+    <span class="nav-icon">📦</span> Projects
+    <span class="nav-badge"
+          x-text="$store.devfile.projects.length"></span>
+  </div>
+
+  <div class="nav-item"
+       :class="{ active: $store.ui.activeSection === 'starterprojects' }"
+       @click="$store.ui.setSection('starterprojects')">
+    <span class="nav-icon">🌱</span> Starter Projects
+    <span class="nav-badge"
+          x-text="$store.devfile.starterProjects.length"></span>
+  </div>
+
+  <div class="nav-item"
+       :class="{ active: $store.ui.activeSection === 'commands' }"
+       @click="$store.ui.setSection('commands')">
+    <span class="nav-icon">⚡</span> Commands
+    <span class="nav-badge" x-text="$store.devfile.commands.length"></span>
+  </div>
+
+  <div class="nav-item"
+       :class="{ active: $store.ui.activeSection === 'events' }"
+       @click="$store.ui.setSection('events')">
+    <span class="nav-icon">🔔</span> Events
+  </div>
+
+  <div class="nav-divider"></div>
+  <div class="nav-section-label">Output</div>
+
+  <div class="nav-item"
+       :class="{ active: $store.ui.activeSection === 'output' }"
+       @click="$store.ui.setSection('output')">
+    <span class="nav-icon">📄</span> Export YAML
+  </div>
 </nav>

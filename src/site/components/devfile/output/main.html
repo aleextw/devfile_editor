@@ -1,0 +1,100 @@
+{# _devfile_section_output.html — export YAML / JSON output and share links #}
+{% import 'components/devfile/output/share_panel.html' as share_panel %}
+<div
+  class="section"
+  id="section-output"
+  x-data="{
+    async generate() {
+      await window._generateAndExport();
+    },
+    copy() {
+      const content = this.$store.ui.outputTab === 'yaml'
+        ? this.$store.ui.yamlOutput
+        : this.$store.ui.jsonOutput;
+      navigator.clipboard.writeText(content).then(() => {
+        this.copyLabel = '✔ Copied!';
+        setTimeout(() => { this.copyLabel = '⎘ Copy'; }, 1800);
+      });
+    },
+    copyUrl(field, labelField) {
+      const val = this.$store.ui[field];
+      navigator.clipboard.writeText(val).then(() => {
+        this[labelField] = '✔ Copied!';
+        setTimeout(() => { this[labelField] = '⎘ Copy'; }, 1800);
+      });
+    },
+    download() {
+      const isYaml = this.$store.ui.outputTab === 'yaml';
+      const content = isYaml ? this.$store.ui.yamlOutput : this.$store.ui.jsonOutput;
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([content], { type: 'text/plain' }));
+      a.download = isYaml ? 'devfile.yaml' : 'devfile.json';
+      a.click();
+    },
+    copyLabel: '⎘ Copy',
+    copyShareLabel: '⎘ Copy',
+    copyRawLabel: '⎘ Copy Raw',
+  }"
+  x-show="$store.ui.activeSection === 'output'"
+>
+  <div class="section-header">
+    <h2>// export</h2>
+    <p>
+      Review and export the generated devfile. Switch between YAML and JSON
+      views.
+    </p>
+  </div>
+
+  <!-- Status bar -->
+  <div
+    class="status-bar"
+    :class="$store.ui.outputStatus.type"
+    x-html="$store.ui.outputStatus.message"
+  ></div>
+
+  <!-- Share panel -->
+  {{ share_panel.render() }}
+
+  <!-- Tab bar + actions -->
+  <div class="flex-between mb-16">
+    <div class="output-tabs">
+      <div
+        class="output-tab"
+        :class="{ active: $store.ui.outputTab === 'yaml' }"
+        @click="$store.ui.setOutputTab('yaml')"
+      >
+        YAML
+      </div>
+      <div
+        class="output-tab"
+        :class="{ active: $store.ui.outputTab === 'json' }"
+        @click="$store.ui.setOutputTab('json')"
+      >
+        JSON
+      </div>
+    </div>
+    <div class="flex-gap">
+      <button class="btn btn-secondary btn-sm" @click="generate()">
+        ↻ Regenerate
+      </button>
+      <button
+        class="btn btn-ghost btn-sm"
+        @click="copy()"
+        x-text="copyLabel"
+      ></button>
+      <button class="btn btn-success btn-sm" @click="download()">
+        ⬇ Download
+      </button>
+    </div>
+  </div>
+
+  <!-- YAML pane -->
+  <div class="output-pane" :class="{ active: $store.ui.outputTab === 'yaml' }">
+    <div class="code-block" x-text="$store.ui.yamlOutput"></div>
+  </div>
+
+  <!-- JSON pane -->
+  <div class="output-pane" :class="{ active: $store.ui.outputTab === 'json' }">
+    <div class="code-block" x-text="$store.ui.jsonOutput"></div>
+  </div>
+</div>

@@ -15,15 +15,6 @@ class PredefinedRepo(BaseModel):
     revision    → project.git.checkoutFrom.revision  (branch, tag, or commit)
     clone_path  → project.clonePath      (defaults to name if omitted)
     description → UI-only, not written to the devfile
-
-    Example
-    -------
-        {
-            "name": "my-app",
-            "remote": "https://github.com/org/my-app",
-            "revision": "main",
-            "description": "Main application repository"
-        }
     """
 
     name: str = Field(
@@ -42,7 +33,7 @@ class PredefinedRepo(BaseModel):
     )
     description: str = Field(
         default="",
-        description="UI-only helper text shown in the predefined repo picker. Not written to the devfile.",
+        description="UI-only helper text shown in the predefined repo picker.",
     )
 
 
@@ -59,87 +50,66 @@ class PredefinedCommand(BaseModel):
     id: str
     display_name: str = ""
     description: str = ""
-    # Exactly one of these must be present (mirrors devfile schema oneOf)
     exec: dict[str, Any] | None = None
     composite: dict[str, Any] | None = None
     apply: dict[str, Any] | None = None
 
 
-class CatalogField(BaseModel):
-    """A configurable field on a component catalog item."""
-
-    key: str
-    label: str
-    placeholder: str = ""
-    type: str = "text"  # "text" | "number"
-
-
-class CatalogEnvContribution(BaseModel):
+class CatalogFragment(BaseModel):
     """
-    An environment variable contributed by a catalog item.
-    ``value`` is a literal string; ``value_from`` is a field key whose
-    current value is used. Exactly one should be set.
-    """
+    A catalog preset entry shown in the fragment catalog picker.
 
-    name: str
-    value: str = ""
-    value_from: str = ""  # references a CatalogField.key
+    Each entry is a named, reusable partial devfile that users can add as a
+    fragment to their workspace configuration.  When the user clicks the preset,
+    a deep copy of ``devfile`` is added to ``store.devfile.fragments`` and merged
+    into the base devfile on export.
 
+    The ``devfile`` dict may contain any subset of the top-level devfile fields:
+    ``components``, ``commands``, ``events``, ``variables``, ``attributes``,
+    ``projects``, ``starterProjects``.  It must NOT contain ``schemaVersion`` or
+    ``metadata`` (those belong only to the base).
 
-class CatalogVolumeContribution(BaseModel):
-    """
-    A volume component + mount contributed by a catalog item.
-    ``name`` is a literal volume name; ``name_from`` + ``name_default``
-    derives the name from a field value (slugified when ``slugify=True``).
-    """
-
-    name: str = ""
-    name_from: str = ""  # references a CatalogField.key
-    name_default: str = ""  # fallback when name_from field is empty
-    size: str = ""  # literal; empty means no size constraint
-    size_from: str = ""  # references a CatalogField.key
-    mount_path: str = ""  # literal mount path; defaults to "/<name>"
-    path_from: str = ""  # references a CatalogField.key for mount path
-    slugify: bool = True  # replace non-alnum chars with "-"
-
-
-class CatalogEndpointContribution(BaseModel):
-    """An endpoint contributed by a catalog item."""
-
-    name: str
-    target_port: int = 0
-    port_from: str = ""  # references a CatalogField.key
-    protocol: str = "tcp"
-    exposure: str = "internal"
-
-
-class CatalogContributions(BaseModel):
-    """What a catalog item contributes to the devfile when active."""
-
-    env: list[CatalogEnvContribution] = []
-    volumes: list[CatalogVolumeContribution] = []
-    endpoints: list[CatalogEndpointContribution] = []
-    commands: list[dict[str, Any]] = []
-    events: list[dict[str, Any]] = []
-
-
-class ComponentCatalogItem(BaseModel):
-    """
-    A component catalog bundle shown in the Components section.
-    When selected, the item's ``contributions`` are merged into the
-    generated devfile based on the user's field values.
-
-    The ``contributions`` schema is evaluated generically by both the
-    frontend (generateDevfileData) and the backend (_generate_devfile_data),
-    replacing the previous hardcoded per-item logic.
+    Example catalog JSON entry
+    --------------------------
+    {
+      "id": "docker-in-docker",
+      "name": "Docker-in-Docker",
+      "icon": "🐳",
+      "description": "Add a DinD volume for container builds inside the workspace.",
+      "devfile": {
+        "components": [
+          { "name": "dind-storage", "volume": { "size": "10Gi" } }
+        ],
+        "commands": [
+          {
+            "id": "start-dind",
+            "exec": {
+              "commandLine": "dockerd &",
+              "component": "dev",
+              "group": { "kind": "run", "isDefault": false }
+            }
+          }
+        ]
+      }
+    }
     """
 
-    id: str
-    name: str
-    icon: str = "🧩"
-    description: str = ""
-    fields: list[CatalogField] = []
-    contributions: CatalogContributions = CatalogContributions()
+    id: str = Field(description="Unique identifier for this catalog entry.")
+    name: str = Field(description="Human-readable display name.")
+    icon: str = Field(
+        default="🧩", description="Emoji or short string used as a visual icon."
+    )
+    description: str = Field(
+        default="", description="Short description shown in the picker."
+    )
+    devfile: dict[str, Any] = Field(
+        default_factory=dict,
+        description=(
+            "Partial devfile fragment. May contain components, commands, events, "
+            "variables, attributes, projects, and/or starterProjects. "
+            "schemaVersion and metadata are ignored if present."
+        ),
+    )
 
 
 class PredefinedConfig(BaseModel):
@@ -147,19 +117,6 @@ class PredefinedConfig(BaseModel):
     A parsed and encoded predefined devfile configuration, ready to be
     injected into the template. Generated at startup from files in the
     predefined configs directory.
-
-    Attributes
-    ----------
-    name:
-        Display name shown in the sidebar and card heading. Derived from the
-        filename (stem, with hyphens/underscores replaced by spaces, title-cased)
-        unless a ``metadata.name`` field is present in the devfile.
-    description:
-        Optional description shown in the expandable card. Derived from
-        ``metadata.description`` if present in the devfile.
-    blob:
-        Base64url-encoded, deflate-raw-compressed frontend state JSON,
-        ready to append as ``#c=<blob>`` to the configurator URL.
     """
 
     name: str

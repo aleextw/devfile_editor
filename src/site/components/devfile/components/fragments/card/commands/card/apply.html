@@ -1,0 +1,8 @@
+{% macro render(cmd, ci) %}
+<template x-if="cmd.type === 'apply' && cmd.apply">
+  <div class="field-group mt-8">
+    <label class="field-label">Component</label>
+    <input type="text" placeholder="dev" x-model="cmd.apply.component" />
+  </div>
+</template>
+{% endmacro %}

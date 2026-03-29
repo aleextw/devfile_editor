@@ -1,0 +1,70 @@
+{# _devfile_section_projects.html — projects #}
+{% import 'components/devfile/projects/projects.html' as projects %}
+{% import 'components/devfile/projects/predefined_repo.html' as predefined_repo %}
+<div
+  class="section"
+  id="section-projects"
+  x-data="{
+    selectedPredefined: [],
+    togglePredefined(name) {
+      const idx = this.selectedPredefined.indexOf(name);
+      if (idx !== -1) this.selectedPredefined.splice(idx, 1);
+      else            this.selectedPredefined.push(name);
+    },
+    addSelected() {
+      $store.devfile.addProjectsFromPredefined([...this.selectedPredefined]);
+      this.selectedPredefined = [];
+    },
+    selectAll() {
+      this.selectedPredefined = window._devfileStore.PREDEFINED_REPOS.map(r => r.name);
+    },
+    get allSelected() {
+      const repos = window._devfileStore.PREDEFINED_REPOS;
+      return repos.length > 0 && repos.every(r => this.selectedPredefined.includes(r.name));
+    },
+  }"
+  x-show="$store.ui.activeSection === 'projects'"
+>
+  <div class="section-header">
+    <h2>// projects</h2>
+    <p>Source repositories cloned into the workspace at startup.</p>
+  </div>
+
+  <!-- ── Predefined repo picker ────────────────────────────────────────── -->
+  {% if predefined_repos %}
+  <div class="card">
+    <div class="card-header" style="margin-bottom: 12px">
+      <span class="card-title">Predefined Repositories</span>
+      <div class="flex-gap">
+        <button
+          class="btn btn-ghost btn-sm"
+          @click="allSelected ? selectedPredefined = [] : selectAll()"
+          x-text="allSelected ? 'Deselect All' : 'Select All'"
+        ></button>
+        <button class="btn btn-secondary btn-sm" @click="addSelected()">
+          + Add Selected
+        </button>
+      </div>
+    </div>
+    <p
+      style="
+        font-size: 12px;
+        color: var(--text-dim);
+        margin-bottom: 12px;
+        line-height: 1.6;
+      "
+    >
+      Select from your organisation's catalog, then click
+      <strong>+ Add Selected</strong>.
+    </p>
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      {% for repo in predefined_repos %}
+        {{ predefined_repo.render(repo) }}
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ── projects list ───────────────────────────────────────────────── -->
+  {{ projects.render() }}
+</div>

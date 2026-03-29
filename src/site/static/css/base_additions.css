@@ -1,0 +1,2 @@
+/* base.css — add x-cloak support for Alpine.js */
+[x-cloak] { display: none !important; }

@@ -1,0 +1,20 @@
+{% macro render() %}
+<!-- ═══ Environment Variables ════════════════════════════════════════════ -->
+<div class="card mt-16">
+  <div class="card-header">
+    <span class="card-title">Environment Variables</span>
+    <button class="btn btn-secondary btn-sm" @click="$store.devfile.addEnvVar()">+ Add Variable</button>
+  </div>
+  <template x-for="(env, i) in $store.devfile.customEnv" :key="i">
+    <div class="kv-row" style="margin-bottom:8px">
+      <input type="text" placeholder="ENV_VAR_NAME" x-model="env.name">
+      <input type="text" placeholder="value" x-model="env.value">
+      <button class="btn btn-danger btn-sm" @click="$store.devfile.removeEnvVar(i)">✕</button>
+    </div>
+  </template>
+  <div x-show="$store.devfile.customEnv.length === 0"
+    style="color:var(--text-faint);font-size:13px;text-align:center;padding:16px 0">
+    No environment variables defined.
+  </div>
+</div>
+{% endmacro %}

@@ -23,6 +23,8 @@
     background: var(--surface3);
 }
 
+/* Alpine drives selected state via :class="{ selected: ... }" */
+.event-command-row.selected,
 .event-command-row:has(.event-cmd-check:checked) {
     border-color: var(--accent);
     background: rgba(79, 156, 249, 0.06);

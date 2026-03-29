@@ -1,0 +1,41 @@
+{% macro render() %}
+<div class="card mt-16">
+  <div class="card-header"><span class="card-title">Architectures</span></div>
+  <p
+    style="
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 14px;
+      line-height: 1.6;
+    "
+  >
+    Select the CPU architectures this devfile supports.
+  </p>
+  <div style="display: flex; gap: 24px; flex-wrap: wrap">
+    <template x-for="arch in ['amd64','arm64','ppc64le','s390x']" :key="arch">
+      <label
+        style="
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 13px;
+          cursor: pointer;
+        "
+      >
+        <input
+          type="checkbox"
+          :checked="$store.devfile.metadata.architectures.includes(arch)"
+          @change="
+                   const arr = $store.devfile.metadata.architectures;
+                   const idx = arr.indexOf(arch);
+                   $event.target.checked
+                     ? (idx === -1 && arr.push(arch))
+                     : (idx !== -1 && arr.splice(idx, 1))
+                 "
+        />
+        <span x-text="arch"></span>
+      </label>
+    </template>
+  </div>
+</div>
+{% endmacro %}

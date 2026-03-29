@@ -1,0 +1,14 @@
+{% macro render(cmd, ci) %}
+<template x-if="cmd.type === 'composite' && cmd.composite">
+  <div class="field-group mt-8">
+    <label class="field-label">Sub-commands (comma-separated)</label>
+    <input
+      type="text"
+      placeholder="build, run"
+      :value="(cmd.composite.commands ?? []).join(', ')"
+      @input="cmd.composite.commands = $event.target.value
+                            .split(',').map(s => s.trim()).filter(Boolean)"
+    />
+  </div>
+</template>
+{% endmacro %}

@@ -1,0 +1,93 @@
+{# _devfile_section_commands.html — predefined command picker and custom command list #}
+{% import 'components/devfile/commands/predefined_command.html' as predefined_command %}
+{% import 'components/devfile/commands/card/base.html' as command_config_card %}
+<div
+  class="section"
+  id="section-commands"
+  x-data="{
+    selectedPredefined: [],
+    togglePredefined(id) {
+      const idx = this.selectedPredefined.indexOf(id);
+      if (idx !== -1) this.selectedPredefined.splice(idx, 1);
+      else            this.selectedPredefined.push(id);
+    },
+    addSelected() {
+      $store.devfile.addCommandsFromPredefined([...this.selectedPredefined]);
+      this.selectedPredefined = [];
+    },
+    selectAll() {
+      this.selectedPredefined = window._devfileStore.PREDEFINED_COMMANDS.map(c => c.id);
+    },
+    get allSelected() {
+      const cmds = window._devfileStore.PREDEFINED_COMMANDS;
+      return cmds.length > 0 && cmds.every(c => this.selectedPredefined.includes(c.id));
+    },
+    get predefinedCommands() { return window._devfileStore.PREDEFINED_COMMANDS; },
+    cmdTypeLabel(cmd) {
+      if (cmd.exec)      return 'exec · ' + (cmd.exec.commandLine || '');
+      if (cmd.composite) return 'composite · ' + (cmd.composite.commands || []).join(', ');
+      if (cmd.apply)     return 'apply · ' + (cmd.apply.component || '');
+      return '';
+    },
+    cmdKindTag(cmd) {
+      if (cmd.exec)      return cmd.exec.group?.kind ?? 'exec';
+      if (cmd.composite) return 'composite';
+      if (cmd.apply)     return 'apply';
+      return '';
+    },
+  }"
+  x-show="$store.ui.activeSection === 'commands'"
+>
+  <div class="section-header">
+    <h2>// commands</h2>
+    <p>
+      Define devworkspace commands — actions that can be run from the IDE.
+      <code style="font-family:var(--mono);font-size:11px">exec</code> runs a shell command
+      in a container, <code style="font-family:var(--mono);font-size:11px">composite</code>
+      chains other commands, <code style="font-family:var(--mono);font-size:11px">apply</code>
+      applies a component.
+    </p>
+  </div>
+
+  <!-- ── Predefined command picker ─────────────────────────────────────── -->
+  <div class="card" x-show="predefinedCommands.length > 0" style="margin-bottom:16px">
+    <div class="card-header" style="margin-bottom:12px">
+      <span class="card-title">Predefined Commands</span>
+      <div class="flex-gap">
+        <button class="btn btn-ghost btn-sm"
+                @click="allSelected ? selectedPredefined = [] : selectAll()"
+                x-text="allSelected ? 'Deselect All' : 'Select All'"></button>
+        <button class="btn btn-secondary btn-sm"
+                @click="addSelected()">+ Add Selected</button>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--text-dim);margin-bottom:12px;line-height:1.6">
+      Select from your organisation's predefined commands, then click
+      <strong>+ Add Selected</strong>. You can customise any field after adding.
+    </p>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <template x-for="cmd in predefinedCommands" :key="cmd.id">
+        {{ predefined_command.render(cmd) }}
+      </template>
+    </div>
+  </div>
+
+  <!-- ── Custom command list ────────────────────────────────────────────── -->
+  <div class="card mt-16">
+    <div class="card-header">
+      <span class="card-title">Commands</span>
+      <button class="btn btn-secondary btn-sm"
+              @click="$store.devfile.addCommand('exec')">+ Add Command</button>
+    </div>
+
+    <template x-for="(cmd, i) in $store.devfile.commands" :key="i">
+      {{ command_config_card.render(cmd, i) }}
+    </template>
+
+    <div x-show="$store.devfile.commands.length === 0"
+         style="color:var(--text-faint);font-size:13px;text-align:center;padding:24px 0;">
+      No commands defined. Select from the catalog above or click
+      <strong style="color:var(--text-dim)">+ Add Command</strong>.
+    </div>
+  </div>
+</div>

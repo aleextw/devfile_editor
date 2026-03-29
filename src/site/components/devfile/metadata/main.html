@@ -1,0 +1,26 @@
+{# _devfile_section_metadata.html — top-level devfile metadata #}
+{% import 'components/devfile/metadata/identity.html' as identity_card %}
+{% import 'components/devfile/metadata/classification.html' as classification_card %}
+{% import 'components/devfile/metadata/tags.html' as tags_card %}
+{% import 'components/devfile/metadata/architectures.html' as architectures_card %}
+<div
+  class="section"
+  id="section-metadata"
+  x-data
+  x-show="$store.ui.activeSection === 'metadata'"
+>
+  <div class="section-header">
+    <h2>// metadata</h2>
+    <p>
+      Human-readable information about this devfile. All fields are optional and
+      do not affect workspace behaviour.
+    </p>
+  </div>
+  {{ identity_card.render() }}
+
+  {{ classification_card.render() }}
+
+  {{ tags_card.render() }}
+
+  {{ architectures_card.render() }}
+</div>

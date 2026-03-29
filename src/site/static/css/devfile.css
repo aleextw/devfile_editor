@@ -1,5 +1,10 @@
 /* devfile.css — devfile configurator page shell: viewport lock, grid layout, content area */
 
+/* Alpine x-cloak: hide elements until Alpine initialises to prevent flash of unstyled content */
+[x-cloak] {
+  display: none !important;
+}
+
 body {
   height: 100vh;
   overflow: hidden;
@@ -19,12 +24,10 @@ body {
   height: 100%;
 }
 
+/* .section visibility is controlled by Alpine x-show — no CSS needed here.
+   We keep .section as a selector only for padding/spacing if needed in future. */
 .section {
-  display: none;
-}
-
-.section.active {
-  display: block;
+  /* intentionally empty — x-show manages display */
 }
 
 .section-header {

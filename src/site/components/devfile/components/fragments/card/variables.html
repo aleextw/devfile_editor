@@ -1,0 +1,59 @@
+{% macro render(frag) %}
+<div
+  x-data="{
+        newKey: '', newVal: '',
+        add() {
+          const k = this.newKey.trim();
+          if (!k) return;
+          frag.devfile.variables[k] = this.newVal;
+          frag.devfile.variables = { ...frag.devfile.variables };
+          this.newKey = ''; this.newVal = '';
+        },
+        remove(key) {
+          const v = { ...frag.devfile.variables };
+          delete v[key];
+          frag.devfile.variables = v;
+        },
+      }"
+>
+  <div class="flex-between mb-8">
+    <span class="card-title" style="font-size: 11px">variables</span>
+  </div>
+  <template
+    x-for="[k, v] in Object.entries(frag.devfile.variables ?? {})"
+    :key="k"
+  >
+    <div class="kv-row" style="margin-bottom: 6px">
+      <input
+        type="text"
+        :value="k"
+        readonly
+        style="font-family: var(--mono); color: var(--accent)"
+      />
+      <input
+        type="text"
+        :value="v"
+        @input="frag.devfile.variables[k] = $event.target.value;
+                            frag.devfile.variables = {...frag.devfile.variables}"
+      />
+      <button class="btn btn-danger btn-sm" @click="remove(k)">✕</button>
+    </div>
+  </template>
+  <div class="kv-row mt-8">
+    <input
+      type="text"
+      placeholder="VAR_NAME"
+      x-model="newKey"
+      @keydown.enter.prevent="add()"
+      style="font-family: var(--mono)"
+    />
+    <input
+      type="text"
+      placeholder="value"
+      x-model="newVal"
+      @keydown.enter.prevent="add()"
+    />
+    <button class="btn btn-secondary btn-sm" @click="add()">+</button>
+  </div>
+</div>
+{% endmacro %}

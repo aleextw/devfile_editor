@@ -1,0 +1,52 @@
+{% macro render() %}
+<div class="card">
+  <div class="card-header"><span class="card-title">Identity</span></div>
+  <div class="field-row cols-2">
+    <div class="field-group">
+      <label class="field-label">Name</label>
+      <input
+        type="text"
+        placeholder="my-workspace"
+        x-model="$store.devfile.metadata.name"
+      />
+      <p class="field-hint">Machine-readable identifier for this devfile.</p>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Display Name</label>
+      <input
+        type="text"
+        placeholder="My Workspace"
+        x-model="$store.devfile.metadata.displayName"
+      />
+    </div>
+  </div>
+  <div class="field-group mt-16">
+    <label class="field-label">Description</label>
+    <textarea
+      placeholder="A short description of this workspace…"
+      rows="3"
+      x-model="$store.devfile.metadata.description"
+    ></textarea>
+  </div>
+  <div class="field-row cols-2 mt-16">
+    <div class="field-group">
+      <label class="field-label">Version</label>
+      <input
+        type="text"
+        placeholder="1.0.0"
+        x-model="$store.devfile.metadata.version"
+      />
+      <p class="field-hint">Semver string, e.g. 1.0.0</p>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Icon</label>
+      <input
+        type="text"
+        placeholder="https://example.com/icon.png"
+        x-model="$store.devfile.metadata.icon"
+      />
+      <p class="field-hint">URL to an icon image.</p>
+    </div>
+  </div>
+</div>
+{% endmacro %}

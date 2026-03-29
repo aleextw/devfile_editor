@@ -1,0 +1,73 @@
+{# _devfile_section_attributes.html — top-level devfile attributes #}
+{% import 'components/devfile/attributes/existing_attribute.html' as existing_attribute %}
+<div
+  class="section"
+  id="section-attributes"
+  x-data="{
+    newKey: '',
+    newVal: '',
+    add() {
+      const k = this.newKey.trim();
+      if (!k) return;
+      // Store as string; advanced users can edit raw JSON in a future iteration
+      $store.devfile.attributes[k] = this.newVal;
+      $store.devfile.attributes = { ...$store.devfile.attributes };
+      this.newKey = '';
+      this.newVal = '';
+    },
+    remove(key) {
+      const a = { ...$store.devfile.attributes };
+      delete a[key];
+      $store.devfile.attributes = a;
+    },
+    update(key, value) {
+      $store.devfile.attributes[key] = value;
+      $store.devfile.attributes = { ...$store.devfile.attributes };
+    },
+    displayVal(v) {
+      if (typeof v === 'object') return JSON.stringify(v);
+      return String(v ?? '');
+    },
+  }"
+  x-show="$store.ui.activeSection === 'attributes'"
+>
+  <div class="section-header">
+    <h2>// attributes</h2>
+    <p>
+      Arbitrary key/value extension data at the devfile root. Used by tools and
+      operators that extend the devfile specification.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Attributes</span></div>
+
+    <!-- Existing attributes -->
+    <template x-for="[key, val] in Object.entries($store.devfile.attributes)" :key="key">
+      {{ existing_attribute.render(key, val) }}
+    </template>
+
+    <div x-show="Object.keys($store.devfile.attributes).length === 0"
+         style="color:var(--text-faint);font-size:13px;text-align:center;padding:16px 0">
+      No attributes defined.
+    </div>
+
+    <!-- Add new attribute -->
+    <div class="separator"></div>
+    <div class="kv-row">
+      <input type="text" placeholder="attribute.key"
+             x-model="newKey"
+             @keydown.enter.prevent="add()"
+             style="font-family:var(--mono)">
+      <input type="text" placeholder="value"
+             x-model="newVal"
+             @keydown.enter.prevent="add()">
+      <button class="btn btn-secondary btn-sm" @click="add()">+ Add</button>
+    </div>
+    <p class="field-hint mt-8">
+      Attribute keys are typically namespaced, e.g.
+      <code style="font-family:var(--mono);font-size:11px">controller.devfile.io/storage-type</code>.
+      Values are stored as strings here; complex objects must be set programmatically.
+    </p>
+  </div>
+</div>

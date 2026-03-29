@@ -1,0 +1,33 @@
+{% macro render() %}
+<!-- ═══ CPU ══════════════════════════════════════════════════════════════ -->
+<div class="card mt-16">
+  <div class="card-header"><span class="card-title">CPU Limits</span></div>
+  <div class="resource-grid">
+    <div class="resource-block">
+      <div class="resource-label-row">
+        <label class="field-label" style="margin:0">CPU Request</label>
+        <span class="resource-val" x-text="$store.devfile.container.cpuRequest || '—'"></span>
+      </div>
+      <input type="range" min="0" :max="cpuSteps.length-1" x-model.number="cpuReqIdx"
+        @input="onCpuReqSlider(cpuReqIdx)">
+      <div class="resource-ticks"><span>0</span><span>500m</span><span>1</span><span>2</span><span>4+</span></div>
+    </div>
+    <div class="resource-block">
+      <div class="resource-label-row">
+        <label class="field-label" style="margin:0">CPU Limit</label>
+        <span class="resource-val" x-text="$store.devfile.container.cpuLimit || '—'"></span>
+      </div>
+      <input type="range" min="0" :max="cpuSteps.length-1" x-model.number="cpuLimIdx"
+        @input="onCpuLimSlider(cpuLimIdx)">
+      <div class="resource-ticks"><span>0</span><span>500m</span><span>1</span><span>2</span><span>4+</span></div>
+    </div>
+  </div>
+  <p class="field-hint mt-8">Or override manually:</p>
+  <div class="field-row cols-2 mt-8">
+    <input type="text" placeholder="e.g. 500m or 1" :value="$store.devfile.container.cpuRequest"
+      @input="$store.devfile.setContainerField('cpuRequest', $event.target.value)">
+    <input type="text" placeholder="e.g. 2 or 4000m" :value="$store.devfile.container.cpuLimit"
+      @input="$store.devfile.setContainerField('cpuLimit', $event.target.value)">
+  </div>
+</div>
+{% endmacro %}

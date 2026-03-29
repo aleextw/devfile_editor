@@ -7,8 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-  href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
-  rel="stylesheet">
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
   <link rel="icon" type="image/x-icon" href="/static/images/favicon.ico">
   <link rel="stylesheet" href="/static/css/base.css">
   <link rel="stylesheet" href="/static/css/navbar.css">
@@ -24,49 +24,56 @@
 </head>
 
 <body>
-
   {% include '_navbar.html' %}
 
-  <div class="main">
-    {% include '_devfile_sidebar.html' %}
-
-    <div class="content">
-      {% include '_devfile_section_repositories.html' %}
-      {% include '_devfile_section_resources.html' %}
-      {% include '_devfile_section_components.html' %}
-      {% include '_devfile_section_commands.html' %}
-      {% include '_devfile_section_events.html' %}
-      {% include '_devfile_section_output.html' %}
-      {% include '_devfile_section_import.html' %}
-      {% include '_devfile_section_templates.html' %}
-    </div>
-  </div>
-
-  <input type="file" id="file-input" accept=".yaml,.yml" style="display:none">
-
-  <!-- Unregister any previously installed Service Worker (sw.js is no longer used) -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(regs => {
-        regs.forEach(reg => reg.unregister());
-      });
-    }
-  </script>
-
-  <!-- Bridge Jinja2 template variables into the static JS module -->
+  <!-- Bridge Jinja2 template variables into JS -->
   <script>
     window.DEVFILE_CONFIG = {
       predefinedRepos: {{ predefined_repos | tojson }},
-    predefinedConfigs: {{ predefined_configs | tojson }},
-    predefinedCommands: {{ predefined_commands | tojson }},
-    componentCatalog: {{ component_catalog | tojson }},
-  };
+      predefinedConfigs: {{ predefined_configs | tojson }},
+      predefinedCommands: {{ predefined_commands | tojson }},
+      componentCatalog: {{ component_catalog | tojson }}
+    };
   </script>
 
-  <!-- js-yaml must load before devfile.js since it's a module that references jsyaml on window -->
+  <div class="main" x-data x-cloak>
+    {% include '_devfile_sidebar.html' %}
+
+    <div class="content">
+      {% include 'components/devfile/metadata/main.html' %}
+      {% include 'components/devfile/variables/main.html' %}
+      {% include 'components/devfile/attributes/main.html' %}
+      {% include 'components/devfile/components/main.html' %}
+      {% include 'components/devfile/projects/main.html' %}
+      {% include 'components/devfile/starter_projects/main.html' %}
+      {% include 'components/devfile/commands/main.html' %}
+      {% include 'components/devfile/events/main.html' %}
+      {% include 'components/devfile/output/main.html' %}
+      {% include 'components/devfile/import/main.html' %}
+      {% include 'components/devfile/templates/main.html' %}
+    </div>
+  </div>
+
+  <!-- Unregister any previously installed Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+    }
+  </script>
+
+  <!--
+    Load order is critical:
+      1. js-yaml  (sync — must be available before Alpine evaluates any x-data)
+      2. script.js module (defer — registers alpine:init listener BEFORE Alpine fires it)
+      3. Alpine   (defer — fires alpine:init, then initialises the DOM)
+
+    ES modules are defer by default. Browser executes deferred scripts in DOM order,
+    so script.js runs before Alpine. Alpine then fires alpine:init synchronously,
+    which our listener (registered in step 2) catches in time.
+  -->
   <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
   <script type="module" src="/static/js/script.js"></script>
-
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.9/dist/cdn.min.js"></script>
 </body>
 
 </html>

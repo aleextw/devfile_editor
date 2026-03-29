@@ -1,0 +1,45 @@
+{% import 'components/devfile/components/fragments/card/header.html' as fragment_card_header %}
+{% import 'components/devfile/components/fragments/card/identity.html' as fragment_card_identity %}
+{% import 'components/devfile/components/fragments/card/variables.html' as fragment_card_variables %}
+{% import 'components/devfile/components/fragments/card/components.html' as fragment_card_components %}
+{% import 'components/devfile/components/fragments/card/commands/main.html' as fragment_card_commands %}
+{% import 'components/devfile/components/fragments/card/events.html' as fragment_card_events %}
+
+{% macro render(frag, fi) %}
+<div
+  class="component-block"
+  style="margin-bottom: 8px"
+  x-data="{ collapsed: false }"
+>
+  <!-- Fragment header -->
+  {{ fragment_card_header.render(frag, fi) }}
+
+  <!-- Fragment body -->
+  <div class="component-block-body" x-show="!collapsed">
+    <!-- Identity -->
+    {{ fragment_card_identity.render(frag) }}
+
+    <div class="separator"></div>
+
+    <!-- ── variables ── -->
+    {{ fragment_card_variables.render(frag) }}
+
+    <div class="separator"></div>
+
+    <!-- ── components ── -->
+    {{ fragment_card_components.render(frag) }}
+
+    <div class="separator"></div>
+
+    <!-- ── commands ── -->
+    {{ fragment_card_commands.render(frag) }}
+
+    <div class="separator"></div>
+
+    <!-- ── events ── -->
+    {{ fragment_card_events.render(frag) }}
+  </div>
+  <!-- /fragment body -->
+</div>
+<!-- /component-block -->
+{% endmacro %}

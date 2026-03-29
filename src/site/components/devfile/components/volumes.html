@@ -1,0 +1,36 @@
+{% macro render() %}
+<!-- ═══ Volume Mounts ════════════════════════════════════════════════════ -->
+<div class="card mt-16">
+  <div class="card-header">
+    <span class="card-title">Volume Mounts</span>
+    <button class="btn btn-secondary btn-sm" @click="$store.devfile.addVolume()">+ Add Volume</button>
+  </div>
+  <template x-for="(vol, i) in $store.devfile.volumes" :key="i">
+    <div class="repo-entry" style="grid-template-columns:1fr 100px 1fr auto auto;margin-bottom:8px;align-items:end">
+      <div class="field-group">
+        <label class="field-label">Name</label>
+        <input type="text" placeholder="my-volume" x-model="vol.name">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Size</label>
+        <input type="text" placeholder="1Gi" x-model="vol.size">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Mount Path</label>
+        <input type="text" placeholder="/data" x-model="vol.mountPath">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Ephemeral</label>
+        <input type="checkbox" x-model="vol.ephemeral" style="margin: 10px; width:auto; height:auto">
+      </div>
+      <div class="remove-btn">
+        <button class="btn btn-danger btn-sm" @click="$store.devfile.removeVolume(i)">✕</button>
+      </div>
+    </div>
+  </template>
+  <div x-show="$store.devfile.volumes.length === 0"
+    style="color:var(--text-faint);font-size:13px;text-align:center;padding:16px 0">
+    No volume mounts defined.
+  </div>
+</div>
+{% endmacro %}

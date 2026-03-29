@@ -1,0 +1,66 @@
+{% import 'components/devfile/components/fragments/card/commands/card/base.html' as fragment_card_commands %}
+{% macro render(frag) %}
+<div
+  x-data="{
+    addCmd() {
+      frag.devfile.commands = frag.devfile.commands ?? [];
+      frag.devfile.commands.push({
+        id: '', type: 'exec',
+        exec: { commandLine: '', component: '', workingDir: '',
+                group: { kind: 'run', isDefault: false } }
+      });
+    },
+    removeCmd(i) { frag.devfile.commands.splice(i, 1); },
+    changeType(i, type) {
+      const id = frag.devfile.commands[i]?.id ?? '';
+      const base = type === 'exec'
+        ? { id, type: 'exec', exec: { commandLine: '', component: '',
+              workingDir: '', group: { kind: 'run', isDefault: false } } }
+        : type === 'composite'
+        ? { id, type: 'composite', composite: { commands: [], parallel: false,
+              group: { kind: 'run', isDefault: false } } }
+        : { id, type: 'apply', apply: { component: '',
+              group: { kind: 'run', isDefault: false } } };
+      frag.devfile.commands.splice(i, 1, base);
+    },
+  }"
+>
+  <div class="flex-between mb-8">
+    <span class="card-title" style="font-size: 11px">commands</span>
+    <button class="btn btn-ghost btn-sm" @click="addCmd()">+ Add</button>
+  </div>
+  <template x-for="(cmd, ci) in (frag.devfile.commands ?? [])" :key="ci">
+    <div
+      class="component-block"
+      style="margin-bottom: 6px"
+      x-data="{ open: true }"
+    >
+      <div
+        class="component-block-header"
+        @click="open = !open"
+        style="padding: 8px 12px"
+      >
+        <span class="cmd-type-badge" :class="cmd.type" x-text="cmd.type"></span>
+        <span
+          style="font-size: 12px; margin-left: 6px"
+          x-text="cmd.id || '(unnamed)'"
+        ></span>
+        <button
+          class="btn btn-danger btn-sm"
+          style="margin-left: auto"
+          @click.stop="removeCmd(ci)"
+        >
+          ✕
+        </button>
+      </div>
+      {{ fragment_card_commands.render(cmd, ci) }}
+    </div>
+  </template>
+  <div
+    x-show="!(frag.devfile.commands ?? []).length"
+    style="color: var(--text-faint); font-size: 12px; padding: 6px 0"
+  >
+    No commands.
+  </div>
+</div>
+{% endmacro %}

@@ -1,0 +1,66 @@
+{% macro render() %}
+<!-- ── projects ─────────────────────────────────────────────────────── -->
+<div class="card {% if predefined_repos %}mt-16{% endif %}">
+  <div class="card-header">
+    <span class="card-title">projects</span>
+    <button
+      class="btn btn-secondary btn-sm"
+      @click="$store.devfile.addProject()"
+    >
+      + Add Project
+    </button>
+  </div>
+
+  <div class="repo-list">
+    <template x-for="(proj, i) in $store.devfile.projects" :key="i">
+      <div class="repo-entry" style="grid-template-columns: 1fr 2fr 120px auto">
+        <div class="field-group">
+          <label class="field-label">Name</label>
+          <input type="text" placeholder="my-project" x-model="proj.name" />
+        </div>
+        <div class="field-group">
+          <label class="field-label">Remote URL</label>
+          <input
+            type="text"
+            placeholder="https://github.com/org/repo"
+            x-model="proj.git.remotes.origin"
+          />
+        </div>
+        <div class="field-group">
+          <label class="field-label">Branch / Revision</label>
+          <input
+            type="text"
+            placeholder="main"
+            :value="proj.git.checkoutFrom?.revision ?? 'main'"
+            @input="proj.git.checkoutFrom = { revision: $event.target.value }"
+          />
+        </div>
+        <div class="remove-btn">
+          <button
+            class="btn btn-danger btn-sm"
+            @click="$store.devfile.removeProject(i)"
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+    </template>
+  </div>
+
+  <div
+    x-show="$store.devfile.projects.length === 0"
+    style="
+      color: var(--text-faint);
+      font-size: 13px;
+      text-align: center;
+      padding: 24px 0;
+    "
+  >
+    No projects defined.{% if predefined_repos %} Select from the catalog above
+    or click
+    <strong style="color: var(--text-dim)">+ Add Project</strong>.{% else %}
+    Click <strong style="color: var(--text-dim)">+ Add Project</strong> to
+    begin.{% endif %}
+  </div>
+</div>
+{% endmacro %}

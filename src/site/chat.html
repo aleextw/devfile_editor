@@ -16,46 +16,84 @@
 </head>
 
 <body>
-
   {% include '_navbar.html' %}
 
-  <div class="message-feed" id="message-feed">
-    <div class="empty-state">
-      <div class="empty-logo">{{ logo_text }}</div>
-      <div class="empty-title">{{ team_name }} Assistant</div>
-      <div class="empty-team">{{ tagline }}</div>
-      <p class="empty-sub">{{ welcome_message }}</p>
-      <div class="suggestion-chips">
-        {% for suggestion in suggestions %}
-        <div class="chip">{{ suggestion }}</div>
-        {% endfor %}
+  <div x-data="chat" class="chat-root">
+    <!-- ── Message feed ─────────────────────────────────────────────────── -->
+    <div class="message-feed" x-ref="messageFeed">
+
+      <!-- Empty state (hidden once messages exist) -->
+      <div class="empty-state" x-show="messages.length === 0">
+        <div class="empty-logo">{{ logo_text }}</div>
+        <div class="empty-title">{{ team_name }} Assistant</div>
+        <div class="empty-team">{{ tagline }}</div>
+        <p class="empty-sub">{{ welcome_message }}</p>
+        <div class="suggestion-chips">
+          {% for suggestion in suggestions %}
+          <div class="chip" @click="useChip('{{ suggestion }}')">{{ suggestion }}</div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <template x-for="(msg, idx) in messages" :key="idx">
+        <div :class="'message-row ' + msg.role">
+
+          <!-- Avatar -->
+          <div :class="'message-avatar ' + msg.role" :style="msg.error ? 'background:var(--warn)' : ''"
+            x-text="msg.role === 'user' ? 'you' : logoText"></div>
+
+          <div class="message-body">
+            <div class="message-meta">
+              <span class="message-sender" x-text="msg.role === 'user' ? 'you' : 'assistant'"></span>
+              <span x-text="msg.time"></span>
+            </div>
+
+            <!-- Typing indicator while streaming and no text yet -->
+            <template x-if="msg.streaming && !msg.text">
+              <div class="typing-indicator">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+              </div>
+            </template>
+
+            <!-- Message bubble -->
+            <template x-if="msg.text || !msg.streaming">
+              <div class="message-bubble"
+                :style="msg.error ? 'border-color:rgba(249,123,79,0.35);color:var(--warn)' : ''"
+                x-html="(msg.error ? '⚠ ' : '') + _escape(msg.text)"></div>
+            </template>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <!-- ── Input area ────────────────────────────────────────────────────── -->
+    <div class="input-area-outer">
+      <div class="input-area">
+        <div class="input-row">
+          <textarea class="input-box" x-ref="inputBox" x-model="inputText" placeholder="{{ input_placeholder }}"
+            rows="1" @input="resizeInput($el)" @keydown="handleKeydown($event)"></textarea>
+          <button class="send-btn" :disabled="!canSend" @click="send()">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+        </div>
+        <div class="input-hint">
+          <kbd>Enter</kbd> to send &nbsp;·&nbsp; <kbd>Shift</kbd>+<kbd>Enter</kbd> for new line
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="input-area-outer">
-    <div class="input-area">
-      <div class="input-row">
-        <textarea class="input-box" id="input-box" placeholder="{{ input_placeholder }}" rows="1"></textarea>
-        <button class="send-btn" id="send-btn" disabled>
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
-              stroke-linejoin="round" />
-          </svg>
-        </button>
-      </div>
-      <div class="input-hint">
-        <kbd>Enter</kbd> to send &nbsp;·&nbsp; <kbd>Shift</kbd>+<kbd>Enter</kbd> for new line
-      </div>
-    </div>
-  </div>
-
-  <!-- Inject template variables needed by chat.js -->
   <script>
     window.CHAT_CONFIG = { logoText: {{ logo_text | tojson }} };
   </script>
-  <script src="/static/js/chat.js"></script>
-
+  <script type="module" src="/static/js/chat.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.9/dist/cdn.min.js"></script>
 </body>
 
 </html>

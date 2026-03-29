@@ -1,0 +1,8 @@
+{% macro render(key, val) %}
+  <div class="kv-row" style="margin-bottom:8px">
+    <input type="text" placeholder="attribute.key" :value="key" readonly
+      style="font-family:var(--mono);color:var(--accent2)">
+    <input type="text" placeholder="value" :value="displayVal(val)" @input="update(key, $event.target.value)">
+    <button class="btn btn-danger btn-sm" @click="remove(key)">✕</button>
+  </div>
+{% endmacro %}

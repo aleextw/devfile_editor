@@ -1,0 +1,51 @@
+{% macro render(frag) %}
+<div
+  x-data="{
+    addComp() {
+      frag.devfile.components = frag.devfile.components ?? [];
+      frag.devfile.components.push({
+        name: '',
+        container: {
+          image: '',
+          mountSources: false,
+          env: [], endpoints: [], volumeMounts: [],
+        }
+      });
+    },
+    removeComp(i) { frag.devfile.components.splice(i, 1); },
+  }"
+>
+  <div class="flex-between mb-8">
+    <span class="card-title" style="font-size: 11px">components</span>
+    <button class="btn btn-ghost btn-sm" @click="addComp()">+ Add</button>
+  </div>
+  <template x-for="(comp, ci) in (frag.devfile.components ?? [])" :key="ci">
+    <div
+      class="repo-entry"
+      style="grid-template-columns: 1fr 2fr auto; margin-bottom: 6px"
+    >
+      <div class="field-group">
+        <label class="field-label">Name</label>
+        <input type="text" placeholder="sidecar" x-model="comp.name" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Image</label>
+        <input
+          type="text"
+          placeholder="registry/image:tag"
+          x-model="comp.container.image"
+        />
+      </div>
+      <div class="remove-btn">
+        <button class="btn btn-danger btn-sm" @click="removeComp(ci)">✕</button>
+      </div>
+    </div>
+  </template>
+  <div
+    x-show="!(frag.devfile.components ?? []).length"
+    style="color: var(--text-faint); font-size: 12px; padding: 6px 0"
+  >
+    No extra components.
+  </div>
+</div>
+{% endmacro %}

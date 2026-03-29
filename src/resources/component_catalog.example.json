@@ -1,0 +1,96 @@
+[
+  {
+    "id": "git-config",
+    "name": "Git Configuration",
+    "icon": "🌿",
+    "description": "Inject git user name and email as environment variables into the container.",
+    "devfile": {
+      "variables": {
+        "GIT_USER_NAME": "",
+        "GIT_USER_EMAIL": ""
+      }
+    }
+  },
+  {
+    "id": "docker-in-docker",
+    "name": "Docker-in-Docker",
+    "icon": "🐳",
+    "description": "Add a persistent DinD storage volume for container builds inside the workspace.",
+    "devfile": {
+      "components": [
+        {
+          "name": "dind-storage",
+          "volume": { "size": "10Gi" }
+        }
+      ]
+    }
+  },
+  {
+    "id": "node-runtime",
+    "name": "Node.js Runtime",
+    "icon": "🟩",
+    "description": "Set the Node.js version variable and add an npm cache volume.",
+    "devfile": {
+      "variables": {
+        "NODE_VERSION": "20"
+      },
+      "components": [
+        {
+          "name": "npm-cache",
+          "volume": {}
+        }
+      ]
+    }
+  },
+  {
+    "id": "debug-port",
+    "name": "Debug Port",
+    "icon": "🐞",
+    "description": "Expose a debug endpoint and add a debug launch command.",
+    "devfile": {
+      "commands": [
+        {
+          "id": "start-debug",
+          "exec": {
+            "commandLine": "node --inspect=0.0.0.0:9229 dist/index.js",
+            "component": "dev",
+            "workingDir": "$PROJECT_SOURCE",
+            "group": { "kind": "debug", "isDefault": true }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "java-maven",
+    "name": "Java / Maven",
+    "icon": "☕",
+    "description": "Configure JAVA_HOME and MAVEN_OPTS, and add standard build/run/test commands.",
+    "devfile": {
+      "variables": {
+        "JAVA_VERSION": "17",
+        "MAVEN_OPTS": "-Xmx1024m"
+      },
+      "commands": [
+        {
+          "id": "mvn-build",
+          "exec": {
+            "commandLine": "mvn package -DskipTests",
+            "component": "dev",
+            "workingDir": "$PROJECT_SOURCE",
+            "group": { "kind": "build", "isDefault": true }
+          }
+        },
+        {
+          "id": "mvn-test",
+          "exec": {
+            "commandLine": "mvn test",
+            "component": "dev",
+            "workingDir": "$PROJECT_SOURCE",
+            "group": { "kind": "test", "isDefault": true }
+          }
+        }
+      ]
+    }
+  }
+]

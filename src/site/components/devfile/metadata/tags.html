@@ -1,0 +1,38 @@
+{% macro render() %}
+<div
+  class="card mt-16"
+  x-data="{
+    tagInput: '',
+    addTag() {
+      const t = this.tagInput.trim();
+      if (t && !$store.devfile.metadata.tags.includes(t)) {
+        $store.devfile.metadata.tags.push(t);
+      }
+      this.tagInput = '';
+    },
+    removeTag(i) { $store.devfile.metadata.tags.splice(i, 1); },
+  }"
+>
+  <div class="card-header"><span class="card-title">Tags</span></div>
+  <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px">
+    <template x-for="(tag, i) in $store.devfile.metadata.tags" :key="i">
+      <span class="tag accent" style="gap: 6px; padding: 4px 10px">
+        <span x-text="tag"></span>
+        <span style="cursor: pointer; font-size: 11px" @click="removeTag(i)"
+          >✕</span
+        >
+      </span>
+    </template>
+  </div>
+  <div style="display: flex; gap: 8px">
+    <input
+      type="text"
+      placeholder="Add a tag…"
+      style="flex: 1"
+      x-model="tagInput"
+      @keydown.enter.prevent="addTag()"
+    />
+    <button class="btn btn-secondary btn-sm" @click="addTag()">+ Add</button>
+  </div>
+</div>
+{% endmacro %}

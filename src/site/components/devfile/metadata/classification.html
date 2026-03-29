@@ -1,0 +1,51 @@
+{% macro render() %}
+<div class="card mt-16">
+  <div class="card-header">
+    <span class="card-title">Classification</span>
+  </div>
+  <div class="field-row cols-2">
+    <div class="field-group">
+      <label class="field-label">Language</label>
+      <input
+        type="text"
+        placeholder="go"
+        x-model="$store.devfile.metadata.language"
+      />
+    </div>
+    <div class="field-group">
+      <label class="field-label">Project Type</label>
+      <input
+        type="text"
+        placeholder="web"
+        x-model="$store.devfile.metadata.projectType"
+      />
+    </div>
+  </div>
+  <div class="field-row cols-2 mt-16">
+    <div class="field-group">
+      <label class="field-label">Provider</label>
+      <input
+        type="text"
+        placeholder="My Organisation"
+        x-model="$store.devfile.metadata.provider"
+      />
+    </div>
+    <div class="field-group">
+      <label class="field-label">Website</label>
+      <input
+        type="text"
+        placeholder="https://example.com"
+        x-model="$store.devfile.metadata.website"
+      />
+    </div>
+  </div>
+  <div class="field-group mt-16">
+    <label class="field-label">Support URL</label>
+    <input
+      type="text"
+      placeholder="https://example.com/support"
+      x-model="$store.devfile.metadata.supportUrl"
+    />
+  </div>
+</div>
+{% endmacro %}

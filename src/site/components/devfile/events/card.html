@@ -1,0 +1,52 @@
+{% macro render(event, loop) %}
+<div class="card {% if not loop.first %}mt-16{% endif %}">
+  <div class="card-header" style="margin-bottom: 12px">
+    <span class="card-title">
+      <code style="font-family: var(--mono); font-size: 12px"
+        >{{ event.label }}</code
+      >
+    </span>
+  </div>
+  <p
+    style="
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 14px;
+      line-height: 1.6;
+    "
+  >
+    {{ event.desc }}
+  </p>
+
+  <!-- No commands yet -->
+  <template x-if="$store.devfile.commandIds.length === 0">
+    <p style="font-size: 12px; color: var(--text-faint); padding: 8px 0">
+      No commands defined yet — add commands in the
+      <strong style="color: var(--text-dim)">Commands</strong> section first.
+    </p>
+  </template>
+
+  <!-- Command checkbox list -->
+  <template x-for="cmdId in $store.devfile.commandIds" :key="cmdId">
+    <label
+      class="event-command-row"
+      :class="{ 'selected': $store.devfile.isEventActive('{{ event.key }}', cmdId) }"
+      @click.prevent="$store.devfile.toggleEvent('{{ event.key }}', cmdId)"
+    >
+      <input
+        type="checkbox"
+        class="event-cmd-check"
+        :checked="$store.devfile.isEventActive('{{ event.key }}', cmdId)"
+        @click.stop="$store.devfile.toggleEvent('{{ event.key }}', cmdId)"
+      />
+      <span class="event-cmd-id" x-text="cmdId"></span>
+      <span
+        class="cmd-type-badge"
+        :class="($store.devfile.commands.find(c => c.id === cmdId) || {}).type"
+        style="margin-left: 6px"
+        x-text="($store.devfile.commands.find(c => c.id === cmdId) || {}).type || ''"
+      ></span>
+    </label>
+  </template>
+</div>
+{% endmacro %}

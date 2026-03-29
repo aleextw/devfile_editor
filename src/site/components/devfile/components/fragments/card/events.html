@@ -1,0 +1,26 @@
+{% macro render(frag) %}
+<div>
+  <div class="mb-8">
+    <span class="card-title" style="font-size: 11px">events</span>
+  </div>
+  <template
+    x-for="key in ['preStart','postStart','preStop','postStop']"
+    :key="key"
+  >
+    <div class="field-group mb-8">
+      <label class="field-label" x-text="key"></label>
+      <input
+        type="text"
+        :placeholder="'command-id-1, command-id-2'"
+        :value="(frag.devfile.events?.[key] ?? []).join(', ')"
+        @input="
+                      frag.devfile.events = frag.devfile.events ?? {};
+                      frag.devfile.events[key] = $event.target.value
+                        .split(',').map(s => s.trim()).filter(Boolean);
+                      frag.devfile.events = { ...frag.devfile.events };
+                    "
+      />
+    </div>
+  </template>
+</div>
+{% endmacro %}

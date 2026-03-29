@@ -1,0 +1,25 @@
+{% macro render(frag) %}
+<div class="field-row cols-2">
+  <div class="field-group">
+    <label class="field-label">Name</label>
+    <input type="text" placeholder="my-fragment" x-model="frag.name" />
+  </div>
+  <div class="field-group">
+    <label class="field-label">Icon</label>
+    <input
+      type="text"
+      placeholder="🧩"
+      x-model="frag.icon"
+      style="max-width: 80px"
+    />
+  </div>
+</div>
+<div class="field-group mt-8">
+  <label class="field-label">Description</label>
+  <input
+    type="text"
+    placeholder="What does this fragment contribute?"
+    x-model="frag.description"
+  />
+</div>
+{% endmacro %}

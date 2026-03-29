@@ -1,0 +1,13 @@
+{%macro render(cmd) %}
+<label class="predefined-repo-row" :class="{ 'selected': selectedPredefined.includes(cmd.id) }"
+    @click.prevent="togglePredefined(cmd.id)">
+    <input type="checkbox" class="predefined-command-check" :checked="selectedPredefined.includes(cmd.id)"
+        @click.stop="togglePredefined(cmd.id)">
+    <div class="predefined-repo-info">
+        <span class="predefined-repo-name" x-text="cmd.display_name || cmd.id"></span>
+        <span class="predefined-repo-desc" x-show="cmd.description" x-text="cmd.description"></span>
+        <span class="predefined-repo-url" x-text="cmdTypeLabel(cmd)"></span>
+    </div>
+    <span class="tag" x-text="cmdKindTag(cmd)"></span>
+</label>
+{% endmacro %}

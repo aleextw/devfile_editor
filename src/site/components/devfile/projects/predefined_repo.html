@@ -1,0 +1,22 @@
+{% macro render(repo) %}
+<label
+  class="predefined-repo-row"
+  :class="{ selected: selectedPredefined.includes('{{ repo.name }}') }"
+  @click.prevent="togglePredefined('{{ repo.name }}')"
+>
+  <input
+    type="checkbox"
+    class="predefined-repo-check"
+    :checked="selectedPredefined.includes('{{ repo.name }}')"
+    @click.stop="togglePredefined('{{ repo.name }}')"
+  />
+  <div class="predefined-repo-info">
+    <span class="predefined-repo-name">{{ repo.name }}</span>
+    {% if repo.description %}
+    <span class="predefined-repo-desc">{{ repo.description }}</span>
+    {% endif %}
+    <span class="predefined-repo-url">{{ repo.remote }}</span>
+  </div>
+  <span class="predefined-repo-branch tag">{{ repo.revision }}</span>
+</label>
+{% endmacro %}

@@ -1,0 +1,42 @@
+{% macro render() %}
+<!-- ═══ Container Image ══════════════════════════════════════════════════ -->
+<div class="card">
+<div class="card-header"><span class="card-title">Container Image</span></div>
+<div class="field-group">
+  <label class="field-label">Base Image</label>
+  <input type="text" placeholder="quay.io/devfile/universal-developer-image:latest"
+  :value="$store.devfile.container.image" @input="$store.devfile.setContainerField('image', $event.target.value)">
+</div>
+<div class="field-row cols-2 mt-16">
+  <div class="field-group">
+  <label class="field-label">Component Name</label>
+  <input type="text" placeholder="dev" :value="$store.devfile.containerName"
+    @input="$store.devfile.setContainerName($event.target.value)">
+  </div>
+  <div class="field-group">
+  <label class="field-label">Source Mapping</label>
+  <input type="text" placeholder="/projects" :value="$store.devfile.container.sourceMapping"
+    @input="$store.devfile.setContainerField('sourceMapping', $event.target.value)">
+  </div>
+</div>
+<div class="separator"></div>
+<div class="toggle-row">
+  <div>
+  <div class="toggle-label">Mount Sources</div>
+  <div class="toggle-desc">Mount project source code into the container</div>
+  </div>
+  <div class="toggle" :class="{ on: $store.devfile.container.mountSources !== false }"
+  @click="$store.devfile.setContainerField('mountSources', !($store.devfile.container.mountSources !== false))">
+  </div>
+</div>
+<div class="toggle-row">
+  <div>
+  <div class="toggle-label">Dedicated Pod</div>
+  <div class="toggle-desc">Run this container in its own separate pod</div>
+  </div>
+  <div class="toggle" :class="{ on: $store.devfile.container.dedicatedPod }"
+  @click="$store.devfile.setContainerField('dedicatedPod', !$store.devfile.container.dedicatedPod)">
+  </div>
+</div>
+</div>
+{% endmacro %}

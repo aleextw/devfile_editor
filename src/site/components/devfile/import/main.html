@@ -1,0 +1,43 @@
+{# _devfile_section_import.html — paste and validate an existing devfile YAML #}
+<div
+  class="section"
+  id="section-import"
+  x-data="devfileImport"
+  x-show="$store.ui.activeSection === 'import'"
+>
+  <div class="section-header">
+    <h2>// import &amp; validate</h2>
+    <p>
+      Paste an existing devfile YAML to parse, validate it against the schema, and load it into
+      the configurator.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Paste Devfile YAML</span></div>
+    <textarea
+      placeholder="Paste your devfile YAML here..."
+      style="min-height:220px;"
+      x-model="$store.ui.importYaml"
+    ></textarea>
+    <div class="flex-gap mt-16">
+      <button class="btn btn-primary" @click="doImport()">Parse &amp; Validate</button>
+      <button class="btn btn-ghost"   @click="clearImport()">Clear</button>
+    </div>
+
+    <!-- Status bar -->
+    <div
+      class="status-bar mt-16"
+      :class="$store.ui.importStatus?.type"
+      x-show="$store.ui.importStatus !== null"
+      x-html="$store.ui.importStatus?.message"
+    ></div>
+  </div>
+
+  <!-- Parsed result -->
+  <div class="card mt-16" x-show="$store.ui.importResultVisible">
+    <div class="card-header"><span class="card-title">Parsed Structure</span></div>
+    <div class="code-block" style="max-height:300px;"
+         x-text="$store.ui.importJsonOutput"></div>
+  </div>
+</div>

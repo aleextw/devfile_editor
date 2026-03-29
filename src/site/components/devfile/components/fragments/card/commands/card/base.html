@@ -1,0 +1,24 @@
+{% import 'components/devfile/components/fragments/card/commands/card/exec.html' as exec %}
+{% import 'components/devfile/components/fragments/card/commands/card/composite.html' as composite %}
+{% import 'components/devfile/components/fragments/card/commands/card/apply.html' as apply %}
+{% macro render(cmd, ci) %}
+<div class="component-block-body" x-show="open" style="padding: 12px">
+  <div class="field-row cols-2">
+    <div class="field-group">
+      <label class="field-label">ID</label>
+      <input type="text" placeholder="my-cmd" x-model="cmd.id" />
+    </div>
+    <div class="field-group">
+      <label class="field-label">Type</label>
+      <select :value="cmd.type" @change="changeType(ci, $event.target.value)">
+        <option value="exec">exec</option>
+        <option value="composite">composite</option>
+        <option value="apply">apply</option>
+      </select>
+    </div>
+  </div>
+  {{ exec.render(cmd, ci) }}
+  {{ composite.render(cmd, ci) }}
+  {{ apply.render(cmd, ci) }}
+</div>
+{% endmacro %}

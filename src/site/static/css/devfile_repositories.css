@@ -48,6 +48,8 @@
     background: var(--surface3);
 }
 
+/* Alpine drives selected state via :class="{ selected: ... }" */
+.predefined-repo-row.selected,
 .predefined-repo-row:has(.predefined-repo-check:checked) {
     border-color: var(--accent);
     background: rgba(79, 156, 249, 0.06);

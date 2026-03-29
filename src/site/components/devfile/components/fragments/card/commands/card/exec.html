@@ -1,0 +1,18 @@
+{% macro render(cmd, ci) %}
+<template x-if="cmd.type === 'exec' && cmd.exec">
+  <div class="field-row cols-2 mt-8">
+    <div class="field-group">
+      <label class="field-label">Command Line</label>
+      <input
+        type="text"
+        placeholder="npm run build"
+        x-model="cmd.exec.commandLine"
+      />
+    </div>
+    <div class="field-group">
+      <label class="field-label">Component</label>
+      <input type="text" placeholder="dev" x-model="cmd.exec.component" />
+    </div>
+  </div>
+</template>
+{% endmacro %}

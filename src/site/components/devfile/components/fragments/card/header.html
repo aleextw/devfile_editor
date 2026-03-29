@@ -1,0 +1,39 @@
+{% macro render(frag, fi) %}
+<div class="component-block-header" @click="collapsed = !collapsed">
+  <span x-text="frag.icon || '🧩'" style="font-size: 16px"></span>
+  <span
+    style="font-size: 13px; font-weight: 600; margin-left: 6px"
+    x-text="frag.name || '(unnamed fragment)'"
+  ></span>
+  <div class="flex-gap" style="margin-left: auto" @click.stop>
+    <button
+      class="btn btn-ghost btn-sm"
+      :disabled="fi === 0"
+      @click="$store.devfile.moveFragmentUp(fi)"
+      title="Move up"
+    >
+      ↑
+    </button>
+    <button
+      class="btn btn-ghost btn-sm"
+      :disabled="fi === $store.devfile.fragments.length - 1"
+      @click="$store.devfile.moveFragmentDown(fi)"
+      title="Move down"
+    >
+      ↓
+    </button>
+    <button
+      class="btn btn-danger btn-sm"
+      @click="$store.devfile.removeFragment(fi)"
+    >
+      ✕
+    </button>
+  </div>
+  <span
+    class="collapse-icon"
+    style="margin-left: 8px"
+    :style="collapsed ? 'transform:rotate(-90deg)' : ''"
+    >▾</span
+  >
+</div>
+{% endmacro %}
